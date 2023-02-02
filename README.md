@@ -17,7 +17,7 @@
 
  - chegar um dos ratos ao outro lado do tabuleiro;
  - ou capturar o gato
- - assim que *um* rato chegar ao final do tabuleiro, os ratos vencem o jogo (_mesmo que o gato possa capturar o rato da chegada na proxima jogada_).
+ - assim que **um** rato chegar ao final do tabuleiro, os ratos vencem o jogo (_mesmo que o gato possa capturar o rato da chegada na proxima jogada_).
 
 #### Regras para os Ratos:
 
@@ -32,7 +32,7 @@
 
  1. O gato pode mover-se para frente, trás e lados, e pode capturar os ratos nestas direções;
  2. O gato não pode mover-se nem capturar na diagonal;
- 3. O gato pode mover-se quantas casas quiser, desde que o caminho *esteja livre*;
+ 3. O gato pode mover-se quantas casas quiser, desde que o caminho **esteja livre**;
  4. Quando o gato captura um rato, passa a ocupar a casa em que o rato estava;
  5. O gato só pode capturar um rato por jogada.
 
