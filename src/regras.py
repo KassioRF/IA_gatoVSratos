@@ -2,46 +2,60 @@
   Neste Modulo são aplicadas as regras de movimento, captura e 
   condições de vitória do jogo.
 """
-#------------------------------------------------------------------------------
-# Valida coordenadas o formato das coordenadas
-#------------------------------------------------------------------------------
+
+
+from src.jogadores import *
 from src.constants import *
 from src.util import *
+from main import Tabuleiro
 
+#------------------------------------------------------------------------------
+# Valida o formato das coordenadas (int, str) ::: ([1,...8], [A,...H])
+#------------------------------------------------------------------------------
 def valida_coordenadas(y,x):
   
+
   x = x.upper()  
   # Garante que y é inteiro
   if type(y) != int:
-    return False  
+    try:
+      y = int(y)
+    except:
+      alerta_jogador("A linha deve ser um inteiro entre [1,..,8]")
+      return False  
   
   # Garante que y está no intervalo [1,8]
-  elif y < 1  or y > 8:
+  if y not in range(1, 9):
+    alerta_jogador("A linha deve ser um inteiro entre [1,..,8]")
     return False
   
   # Garante que x é não vazio
-  elif not x or x == "":
+  if not x or x == "":
     return False
 
   # Garante que x é string
-  elif type(x) != str:
+  if type(x) != str:
+    alerta_jogador("A Coluna deve ser uma letra entre [A,..,H]")
     return False
+
 
   # Garante que x está no intervalo [A,..,H]
-  elif x not in REFCOL:
+  if x not in Tabuleiro.Cols:
+    alerta_jogador("A Coluna deve ser uma letra entre [A,..,H]")
     return False
 
-  
-  return True
+  return y,x
 
 
 #------------------------------------------------------------------------------
 # Verifica as regras antes de realizar o movimento do gato
 #------------------------------------------------------------------------------
 def valida_movimento_gato(tabuleiro, gato, y, x):
-  
-  if not valida_coordenadas(y,x):
+  valida_yx = valida_coordenadas(y,x)
+  if not valida_yx:
     return False
+
+  y,x = valida_yx
 
   # @ DUVIDA: O jogador pode passar a vez ?
   # Assumindo que cada rodada deve haver um movimento
@@ -61,14 +75,14 @@ def valida_movimento_gato(tabuleiro, gato, y, x):
     # Verifica obstáculo no intervalo origem+1 destino-1
     origem, destino = (gato.pos[1], x) if gato.pos[1] < x else (x, gato.pos[1])
     
-    # As coordenadas x sao letras contidas no conjunto REFCOL
-    # Por isso caminhamos pelas céluas com os indices de REFCOL
-    # E acessamos a coordenada no tabuleiro com a letra REFCOL[indice]
+    # As coordenadas x sao letras contidas no conjunto Tabuleiro.Cols
+    # Por isso caminhamos pelas céluas com os indices de Tabuleiro.Cols
+    # E acessamos a coordenada no tabuleiro com a letra Tabuleiro.Cols[indice]
 
-    origem, destino = REFCOL.index(origem), REFCOL.index(destino),
+    origem, destino = Tabuleiro.Cols.index(origem), Tabuleiro.Cols.index(destino),
     
     for xx in range(origem + 1, destino):
-      if tabuleiro[y, REFCOL[xx]] != None:
+      if tabuleiro[y, Tabuleiro.Cols[xx]] != None:
         alerta_jogador("Obstáculo no caminho ")
         return False
 
@@ -83,7 +97,7 @@ def valida_movimento_gato(tabuleiro, gato, y, x):
         return False
   
 
-  return True
+  return y,x
 
 
 #------------------------------------------------------------------------------
@@ -103,7 +117,8 @@ def valida_movimento_ratos(tabuleiro, rato_pos, y, x):
   # Garante o movimento na diagonal se e somente se existir um gato em:
   # (y, x - 1) ou (y, x + 1) 
   if rato_pos[0] != y and rato_pos[1] != x:
-    if tabuleiro[ y, x] != "&":
+    # if tabuleiro[ y, x] != "&":
+    if tabuleiro[ y, x] != Gato.icon:
       alerta_jogador("Movimento inválido")
       return False
 
@@ -121,16 +136,16 @@ def valida_movimento_ratos(tabuleiro, rato_pos, y, x):
   # Garante o movimento tamanho 1 : y == y - 1 e
   # permite movimento tamanho 2 para a primeira rodada
   if rato_pos[0] - 1 > y:
-    if RODADAINICIAL and rato_pos[0] - 2 == y:
+    if Tabuleiro.rodada_inicial and rato_pos[0] - 2 == y:
       pass
     else:
       alerta_jogador("Movimento inválido")
       return False
 
   # Garante que a celula da frente esteja livre
-  if rato_pos[0] == y and tabuleiro[ y, x ] != None :
+  if tabuleiro[ y, x ] != None and rato_pos[0] == x  :
       alerta_jogador("Movimento inválido: Obstáculo")
       return False
 
 
-  return True
+  return y, x

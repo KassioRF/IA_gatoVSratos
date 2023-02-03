@@ -1,7 +1,12 @@
 
-RODADAINICIAL = True
-# Referencia para as coluas
-# REFCOL = ['', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']
-REFCOL = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']
-# REFCOL = [1,2,3,4,5,6,7,8]
 
+# Turno Ratos 
+MAX = 1
+# Turno Gatos
+MIN = -1
+
+
+# RODADAINICIAL = True
+
+# # Referencia para as coluas
+# REFCOL = ["A", "B", "C", "D", "E", "F", "G", "H"]
