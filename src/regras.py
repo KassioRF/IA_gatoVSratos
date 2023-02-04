@@ -4,10 +4,11 @@
 """
 
 
-from src.jogadores import *
-from src.constants import *
-from src.util import *
-from main import Tabuleiro
+# from src.jogadores import *
+# from src.constants import *
+
+from .instancias import tabuleiro, gato
+from .util import *
 
 #------------------------------------------------------------------------------
 # Valida o formato das coordenadas (int, str) ::: ([1,...8], [A,...H])
@@ -40,7 +41,7 @@ def valida_coordenadas(y,x):
 
 
   # Garante que x está no intervalo [A,..,H]
-  if x not in Tabuleiro.Cols:
+  if x not in tabuleiro.Cols:
     alerta_jogador("A Coluna deve ser uma letra entre [A,..,H]")
     return False
 
@@ -50,7 +51,7 @@ def valida_coordenadas(y,x):
 #------------------------------------------------------------------------------
 # Verifica as regras antes de realizar o movimento do gato
 #------------------------------------------------------------------------------
-def valida_movimento_gato(tabuleiro, gato, y, x):
+def valida_movimento_gato( gato, y, x):
   valida_yx = valida_coordenadas(y,x)
   if not valida_yx:
     return False
@@ -75,14 +76,14 @@ def valida_movimento_gato(tabuleiro, gato, y, x):
     # Verifica obstáculo no intervalo origem+1 destino-1
     origem, destino = (gato.pos[1], x) if gato.pos[1] < x else (x, gato.pos[1])
     
-    # As coordenadas x sao letras contidas no conjunto Tabuleiro.Cols
-    # Por isso caminhamos pelas céluas com os indices de Tabuleiro.Cols
-    # E acessamos a coordenada no tabuleiro com a letra Tabuleiro.Cols[indice]
+    # As coordenadas x sao letras contidas no conjunto tabuleiro.Cols
+    # Por isso caminhamos pelas céluas com os indices de tabuleiro.Cols
+    # E acessamos a coordenada no tabuleiro com a letra tabuleiro.Cols[indice]
 
-    origem, destino = Tabuleiro.Cols.index(origem), Tabuleiro.Cols.index(destino),
+    origem, destino = tabuleiro.Cols.index(origem), tabuleiro.Cols.index(destino),
     
     for xx in range(origem + 1, destino):
-      if tabuleiro[y, Tabuleiro.Cols[xx]] != None:
+      if tabuleiro.celulas[y, tabuleiro.Cols[xx]] != None:
         alerta_jogador("Obstáculo no caminho ")
         return False
 
@@ -92,7 +93,7 @@ def valida_movimento_gato(tabuleiro, gato, y, x):
     origem, destino = (gato.pos[0], y) if gato.pos[0] < y else (y, gato.pos[0])
 
     for yy in range(origem + 1, destino):
-      if tabuleiro[yy, x] != None:
+      if tabuleiro.celulas[yy, x] != None:
         alerta_jogador("Obstáculo no caminho ")
         return False
   
@@ -103,11 +104,10 @@ def valida_movimento_gato(tabuleiro, gato, y, x):
 #------------------------------------------------------------------------------
 # Verifica as regras antes de realizar o movimento de um rato
 #------------------------------------------------------------------------------
-def valida_movimento_ratos(tabuleiro, rato_pos, y, x):
+def valida_movimento_ratos(rato_pos, y, x):
 
   if not valida_coordenadas(y,x):
     return False
-
 
   # Exije um movimento
   if rato_pos[0] == y and rato_pos[1] == x :
@@ -117,12 +117,11 @@ def valida_movimento_ratos(tabuleiro, rato_pos, y, x):
   # Garante o movimento na diagonal se e somente se existir um gato em:
   # (y, x - 1) ou (y, x + 1) 
   if rato_pos[0] != y and rato_pos[1] != x:
-    # if tabuleiro[ y, x] != "&":
-    if tabuleiro[ y, x] != Gato.icon:
-      alerta_jogador("Movimento inválido")
+    # if tabuleiro.celulas[ y, x] != "&":
+    if tabuleiro.celulas[ y, x] != gato.icon:
+      alerta_jogador("Movimento inválido 1")
       return False
 
- 
   # Garante movimento para frente
   if rato_pos[0] == y and rato_pos[1] != x :
     alerta_jogador("Movimento lateral não é permitido para ratos")
@@ -130,22 +129,24 @@ def valida_movimento_ratos(tabuleiro, rato_pos, y, x):
   
   #  invalida movimentos para tras
   if rato_pos[0] < y:
-    alerta_jogador("Movimento inválido")
+    alerta_jogador("Movimento inválido 2")
     return False
 
   # Garante o movimento tamanho 1 : y == y - 1 e
   # permite movimento tamanho 2 para a primeira rodada
+  
   if rato_pos[0] - 1 > y:
-    if Tabuleiro.rodada_inicial and rato_pos[0] - 2 == y:
+    if tabuleiro.rodada_inicial and rato_pos[0] - 2 == y:
       pass
     else:
-      alerta_jogador("Movimento inválido")
+      alerta_jogador("Movimento inválido 3")
       return False
 
   # Garante que a celula da frente esteja livre
-  if tabuleiro[ y, x ] != None and rato_pos[0] == x  :
-      alerta_jogador("Movimento inválido: Obstáculo")
-      return False
+  if tabuleiro.celulas[ y, x ] != None and rato_pos[0] == x:
+    alerta_jogador("Movimento inválido: Obstáculo")
+    return False
 
+  
 
   return y, x

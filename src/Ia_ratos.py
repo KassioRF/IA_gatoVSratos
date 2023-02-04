@@ -1,21 +1,21 @@
+
+
 """-----------------------------------------------------------------------------
  Classe IA_Ratos
  Controla os ratos no tabuleiro
 -----------------------------------------------------------------------------"""
-from src.jogadores import *
-from src.regras import *
-from src.util import *
-from src.constants import *
-from main import Tabuleiro
-
-class IA_Ratos():
+class Ia_Ratos():
+  
+  # rato escolhido para o movimento
   escolhido = 0
 
-  def __init__(self, ratos):
+  def __init__(self, ratos, gato, tabuleiro):
     self.ratos = ratos
+    self.gato = gato
+    self.tabuleiro = tabuleiro
 
   # ------------------------------------------------------------------
-  # Verifica se o gato esta na diagonal inferior esquerda ou direita
+  # Verifica se o gato está na diagonal inferior esquerda ou direita
   # em relação a posicão atual do rato idx.
   #
   # a captura é valida se:
@@ -25,32 +25,35 @@ class IA_Ratos():
   # idx: índice do rato contido na lista de posicoes para os ratos
   # ------------------------------------------------------------------
   def movimento_captura(self, idx):
+  
     ratoy = self.ratos.pos[idx][0]
-    gatoy = Gato.pos[0]
+    gatoy = self.gato.pos[0]
 
-    # conversao da letra da coluna para o indice respectivo da letra
-    gatox = Tabuleiro.Cols.index(Gato.pos[1])
-    ratox = Tabuleiro.Cols.index(self.ratos.pos[idx][1])
+    # conversão da letra da coluna para o índice respectivo da letra
+    gatox = self.tabuleiro.Cols.index(self.gato.pos[1])
+    ratox = self.tabuleiro.Cols.index(self.ratos.pos[idx][1])
 
     # se gato nao está 1 linha abaixo a captura já é invalida
     if gatoy == ratoy  - 1:
       # Caso 1:
       if gatox  == ratox - 1:
-        print('caso1')
+        print("caso1")
+
         y, x = self.ratos.pos[idx]
         y = y - 1      
-        x = Tabuleiro.Cols[ratox - 1] 
+        x = self.tabuleiro.Cols[ratox - 1] 
         return y, x
     
       # Caso 2:
       elif gatox == ratox + 1 :
-        print('caso2')
+        print("caso2")
+        
         y, x = self.ratos.pos[idx]
         y = y - 1
-        x = Tabuleiro.Cols[ratox + 1]
+        x = self.tabuleiro.Cols[ratox + 1]
         return y, x
 
-    return [-1,-1]
+    return [ -1, -1 ]
 
   # ------------------------------------
   # Escolhe o rato e o movimento a ser realizado
@@ -62,10 +65,11 @@ class IA_Ratos():
   #
   # Retorna: (idx do rato, linha, coluna)
   # ------------------------------------
+  
   def escolhe_rato(self):
     
     # teste captura (Caso 1)
-    for idx in range(Ratos.n):
+    for idx in range(self.ratos.n):
       y, x =  self.movimento_captura(idx)
       # encontrou uma captura!
       # print(y,x)
@@ -74,7 +78,7 @@ class IA_Ratos():
 
         
     # o id do escolhido
-    idx = self.escolhido % Ratos.n    
+    idx = self.escolhido % self.ratos.n    
     # atualiza a próxima escolha
     self.escolhido += 1
 
@@ -82,15 +86,22 @@ class IA_Ratos():
     y, x = self.ratos.pos[idx]
 
     # Caso 2:
-    if Tabuleiro.rodada_inicial:
-      Tabuleiro.rodada_inicial = False
+    if self.tabuleiro.rodada_inicial:
       y = y - 2
       
       return idx, y, x
     
     # Caso 3:
+    # Obs: Se houver somente 1 rato no tabuleiro e, 
+    # um gato estiver em (y - 1, x), o rato passa a vez
     y = y - 1
+    if self.ratos.n == 1 and self.gato.pos == (y,x):      
+      return -1, -1, -1
     
+    elif self.gato.pos == (y,x):
+      return self.escolhe_rato()
+
     return idx, y, x
       
   
+
