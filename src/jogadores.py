@@ -5,18 +5,18 @@
 class Gato():
   
   icon = "&"
-  pos = None
+  # pos = None
 
   def __init__(self):
-    Gato.pos = ()
+    self.pos = ()
 
   def inicializar(self):
     # Posição inicial para o gato
-    Gato.pos = (1, "D")
+    self.pos = (1, "D")
 
   def set_pos(self, y, x):
     # atualiza posicao atual do gato
-    Gato.pos = ( y, x )
+    self.pos = ( y, x )
 
 
 """-----------------------------------------------------------------------------
@@ -33,7 +33,7 @@ class Ratos():
   pos = []
 
   def __init__(self):
-    Ratos.pos = [ () for _ in range(self.n) ]
+    self.pos = [ () for _ in range(self.n) ]
   
   def inicializar(self):
     # posições iniciais para os ratos
@@ -41,16 +41,15 @@ class Ratos():
                  (7, "F"), (7, "G"), (7, "H") ]
 
     for i in range(self.n):
-      Ratos.pos[i] = posicoes[i]
+      self.pos[i] = posicoes[i]
 
   def set_pos(self, idx, y, x):
     # atualiza posicao atual do rato idx 
     self.pos[idx] = ( y, x )
 
   # Remover um rato na coordenada (y,x)
-  # método invocado nos casos de captura válida na vez do gato 
-  @staticmethod
+  # método invocado no caso de captura válida na vez do gato 
   def remove( y, x):
-    idx = Ratos.pos.index((y,x))
-    Ratos.pos.pop(idx)
-    Ratos.n -= 1
+    idx = self.pos.index((y,x))
+    self.pos.pop(idx)
+    self.n -= 1

@@ -16,10 +16,10 @@ def turno_humano():
   
   while(True):
   
-    yx = input("\t posicao: ")
+    yx = input("\t posicão: ")
 
     if len(yx) != 2:
-      alerta_jogador("\t posicao inválida: o formato deve ser '4d' ")
+      alerta_jogador("\t posicão inválida: a entrada deve conter 2 caracteres. ex: '4d' ")
       
     else:
       break
@@ -27,9 +27,22 @@ def turno_humano():
   return yx[0].upper(), yx[1].upper()
 
 
-
+#@TODO a construção desse metodo poder mudar com o uso de MIN MAX
 def turno_rato():
-  pass
+  idx, y, x = -1, -1, -1
+  
+  while(True):
+    idx, y, x = bot.escolhe_rato()
+    # Quando não há movimentos disponiveis
+    if (idx, y, x) == ( -1, -1, -1):
+      break
+
+    # Se a coordenada do laço é valida finaliza o laço
+    if valida_movimento_ratos(ratos.pos[idx], y, x):
+      break
+  
+  return idx, y, x
+
 
 """-----------------------------------------------------------------------------
   Executa o jogo
@@ -66,16 +79,7 @@ if __name__ == "__main__":
       #-----------------------------------------
       # Escolhe um rato idx e coordenadas (y,x) 
       #-----------------------------------------
-      while(True):
-        idx, y, x = bot.escolhe_rato()
-        # Quando nao ha movimentos disponiveis
-        if (idx, y, x) == ( -1, -1, -1):
-          break
-
-        # Se a coordenada do laço é valida prossegue para a etapa de movimento
-        if valida_movimento_ratos(ratos.pos[idx], y, x):
-          break
-
+      idx, y, x = turno_rato()
       
       # Caso em que n ratos == 1 e esta bloqueado
       if (idx, y, x) == ( -1, -1, -1):
@@ -96,6 +100,9 @@ if __name__ == "__main__":
           break
 
       tabuleiro.jogador = MIN
+      
+    
+    
 
     #-----------------------------------------
     # VEZ HUMANO
@@ -122,8 +129,11 @@ if __name__ == "__main__":
         if tabuleiro.vitoria():          
           print(f"\n\t Você venceu!\n")          
           break
-
+        
         tabuleiro.jogador = MAX
+
+      limpa_console()
+
 
 
   #----------------------------------------------
