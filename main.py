@@ -55,61 +55,65 @@ if __name__ == "__main__":
   tabuleiro.jogador = MAX
   
   while(True):
-
-    # limpa_console()
-    # tabuleiro.exibir()
-    # print(tabuleiro.gato.pos)
-
+    
+    #-----------------------------------------
     # VEZ do Rato
+    #-----------------------------------------
     if tabuleiro.jogador == MAX:
       print(f"\n ====== RODADA: {rodada} ========")
       rodada += 1
 
+      #-----------------------------------------
+      # Escolhe um rato idx e coordenadas (y,x) 
+      #-----------------------------------------
       while(True):
-
         idx, y, x = bot.escolhe_rato()
-
+        # Quando nao ha movimentos disponiveis
         if (idx, y, x) == ( -1, -1, -1):
           break
 
+        # Se a coordenada do laço é valida prossegue para a etapa de movimento
         if valida_movimento_ratos(ratos.pos[idx], y, x):
           break
 
+      
       # Caso em que n ratos == 1 e esta bloqueado
       if (idx, y, x) == ( -1, -1, -1):
         print("Ratos: Sem movimentos possíveis, passa a vez...")
         tabuleiro.jogador = MIN
         continue
 
-
+      #-----------------------------------------
+      # Executa o movimento com y,x válidos 
+      #-----------------------------------------
       if tabuleiro.mover_rato(ratos, idx, y, x):
         # limpa_console()
         tabuleiro.exibir()
-
-        print(f"#{ratos.pos[0]},&{gato.pos} :: {tabuleiro.celulas[ 3, 'A' ]}")
-
 
         # Verifica condicao de vitoria após o último movimento do rato[idx]
         if tabuleiro.vitoria(idx):          
           print(f"\n\t Você perdeu =\ \n")
           break
 
-
       tabuleiro.jogador = MIN
 
-
+    #-----------------------------------------
     # VEZ HUMANO
-    if tabuleiro.jogador == MIN:      
+    #-----------------------------------------
+    if tabuleiro.jogador == MIN:            
       print(f"\n ====== RODADA: {rodada} ========")
       rodada += 1
-      
+
+      # obtém coordenadas
       y,x = turno_humano()
       
       valida_yx = valida_movimento_gato( gato, y, x)
       # validação formata os valoes, como parse int para y etc..
       if valida_yx:
-        
+
         y, x = valida_yx
+        
+        # Executa o movimento no tabuleiro
         tabuleiro.mover_gato(gato, y, x)
 
         # limpa_console()
