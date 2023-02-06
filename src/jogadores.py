@@ -1,10 +1,11 @@
-"""-----------------------------------------------------------------------------
- Classe Gato
- Instancia e movimenta o gato
------------------------------------------------------------------------------"""
-class Gato():
-  
-  icon = "&"
+
+
+from .constants import RATOICON, GATOICON
+
+"""--------------------------------------------------------------------------"""
+"""--------------------------------------------------------------------------"""
+class Gato():  
+  icon = GATOICON
   # pos = None
 
   def __init__(self):
@@ -19,25 +20,22 @@ class Gato():
     self.pos = ( y, x )
 
 
-"""-----------------------------------------------------------------------------
- Classe Ratos
- Instancia e movimenta os ratos
- 
- Obs: 
- attr <self.pos> armazena uma lista de 6 tuplas contendo a posicao de cada rato 
------------------------------------------------------------------------------"""
+"""--------------------------------------------------------------------------"""
+"""--------------------------------------------------------------------------"""
 class Ratos():
   
-  icon = "#"
+  icon = RATOICON
   n = 6
   # n = 2
-  pos = []
+  # Lista de 6 tuplas contendo a posição de cada rato
+  pos = [] 
 
   def __init__(self):
     self.pos = [ () for _ in range(self.n) ]
   
+  
+  # posições iniciais para os ratos
   def inicializar(self):
-    # posições iniciais para os ratos
     posicoes = [ (7, "A"), (7, "B"), (7, "C"),
                  (7, "F"), (7, "G"), (7, "H") ]
 
@@ -46,12 +44,15 @@ class Ratos():
     for i in range(self.n):
       self.pos[i] = posicoes[i]
 
+  
+  # atualiza posicao atual do rato idx 
   def set_pos(self, idx, y, x):
-    # atualiza posicao atual do rato idx 
     self.pos[idx] = ( y, x )
 
+  #---------------------------------------------------------
   # Remover um rato na coordenada (y,x)
   # método invocado no caso de captura válida na vez do gato 
+  #---------------------------------------------------------
   def remove(self, y, x):
     idx = self.pos.index((y,x))
     self.pos.pop(idx)

@@ -1,58 +1,40 @@
 
 
-"""-----------------------------------------------------------------------------
- Classe IA_Ratos
- Controla os ratos no tabuleiro
------------------------------------------------------------------------------"""
+import copy
+from math import sqrt
+from functools import reduce
+from random import randint, choice
+import time 
+# import sys
+# print(sys.getrecursionlimit())
+# sys.setrecursionlimit(12000)
 from .constants import MIN, MAX, COLUNAS, LINHAS
 from .regras import *
-from .arvore_jogo import No, PilhaFronteira
 from .util import print_celulas
 
 from .jogadores import Gato, Ratos
 from .tabuleiro import Tabuleiro
 
-import copy
 
-from math import sqrt
-from functools import reduce
-from random import randint, choice
-
-import time 
-
-# import sys
-# print(sys.getrecursionlimit())
-# sys.setrecursionlimit(12000)
-
-class MinMax():
-  
-  """
-  Verifica se o estado s é terminal
-  """
-  def teste_terminal(estado):
-    # se estado == terminal retorna true
-    pass
-
-  """
-  Calcula a utilidade do estado s para o jogador j
-  """
-  def utilidade(estado, jogador):
-    # como obter a utilidade ?
-    # estará contida no nó
-    pass
+"""-----------------------------------------------------------------------------
+ Classe IA_Ratos
+  - Controla os ratos no tabuleiro
+  - Implementa MinMax com poda alpha-beta para escolher os movimentos
 
 
-
-
-
+-----------------------------------------------------------------------------"""
 class Ia_Ratos():
 
   # teste
   profundidade = 0
-  max_profundidade = 50000
-  # rato escolhido para o movimento
-  escolhido = 0
-
+  
+  # max_profundidade = 50000
+  max_profundidade = 5000
+  
+  # rato escolhido para o movimento quando não usa MinMAX ( testes )
+  escolhido = 0 
+  
+  # controla tempo de execução p algumas rotinas
   time = 0
 
   def __init__(self, ratos, gato, tabuleiro):
@@ -60,16 +42,17 @@ class Ia_Ratos():
     self.gato = gato
     self.tabuleiro = tabuleiro
 
-  # ------------------------------------------------------------------
-  # Verifica se o gato está na diagonal inferior esquerda ou direita
-  # em relação a posicão atual do rato idx.
+  
+  # ----------------------------------------------------------------------------
+  # Verifica se a posição atual permite a captura do gato
   #
   # a captura é valida se:
   # gato está em:
   # Caso 1: [y-1, x-1]; Caso 2: [ y-1, x+1 ]; para x,y :: [1,...,8]
   #
   # idx: índice do rato contido na lista de posicoes para os ratos
-  # ------------------------------------------------------------------
+  # :return: (y,x) :: posição de captura
+  # ----------------------------------------------------------------------------
   def movimento_captura(self, idx):
   
     ratoy = self.ratos.pos[idx][0]
@@ -81,28 +64,32 @@ class Ia_Ratos():
 
     # se gato nao está 1 linha abaixo a captura já é invalida
     if gatoy == ratoy  - 1:
-      # Caso 1:
+  
+      # Caso 1: [y-1, x-1]
       if gatox  == ratox - 1:
-        # print("caso1")
-
-        y, x = self.ratos.pos[idx]
-        y = y - 1      
-        x = self.tabuleiro.Cols[ratox - 1] 
-        return y, x
-    
-      # Caso 2:
-      elif gatox == ratox + 1 :
-        # print("caso2")
         
         y, x = self.ratos.pos[idx]
         y = y - 1
+
+        x = self.tabuleiro.Cols[ratox - 1] 
+        
+        return y, x
+    
+      # Caso 2: [ y-1, x+1 ]
+      elif gatox == ratox + 1 :
+
+        y, x = self.ratos.pos[idx]        
+        y = y - 1
+        
         x = self.tabuleiro.Cols[ratox + 1]
+        
         return y, x
 
+    # sem captura viável
     return [ -1, -1 ]
 
 
-  # ------------------------------------
+  # ----------------------------------------------------------------------------
   # APENAS PARA TESTE!
   # BOT "FRACO" NAO USA MINMAX
   # Escolhe o rato De forma sequencial 
@@ -110,10 +97,8 @@ class Ia_Ratos():
   # Caso 2: Primeiro movimento do jogo, entao permite mover ate 2 casas
   # Caso 3: movimenta 1 casa para frente
   #
-  # @TODO separar o caso 2 em outro metodo ? reduziria o numero de verificaoes?
-  #
-  # Retorna: (idx do rato, linha, coluna)
-  # ------------------------------------  
+  # :return: (idx do rato, linha, coluna)
+  # ----------------------------------------------------------------------------
   def escolhe_rato(self):
     
     # teste captura (Caso 1)
@@ -127,6 +112,7 @@ class Ia_Ratos():
         
     # o id do escolhido
     idx = self.escolhido % self.ratos.n    
+    
     # atualiza a próxima escolha
     self.escolhido += 1
 
@@ -152,92 +138,6 @@ class Ia_Ratos():
     return idx, y, x
       
 
-  
-  # MINIMAX V1
-  #-----------------------------------------------------------------------------
-  # Retorna ações possíveis para o gato
-  #-----------------------------------------------------------------------------
-  def acoes_gato(self, estado):
-    if estado.gato.pos == None:
-      return [ ]
-
-    y, x = estado.gato.pos
-    
-    acoes = [ ]
-
-    # Caso 1: movimento na linha
-    for yy in range(1, estado.altura ):
-      # ignora a posição atual
-      if yy == y:
-        continue        
-      
-      if valida_movimento_gato(estado.gato, yy, x, estado.celulas):
-        acoes.append( ( yy, x ) )
-    
-    # Caso 2: movimento na coluna
-    for xx in estado.Cols:
-      # ignora a posição atual
-      if xx == x:
-        continue
-      
-      if valida_movimento_gato(estado.gato, y, xx, estado.celulas):
-        acoes.append( ( y, xx ) )
-      
-
-
-    return acoes
-  
-  #-----------------------------------------------------------------------------
-  # Retorna ações possíveis para o rato
-  #-----------------------------------------------------------------------------
-  def acoes_rato(self, estado, idx):
-    
-    rato = estado.ratos.pos[idx]
-    y, x = rato
-    y -= 1
-
-    acoes = [ ]
-    # Caso 1: mover -> ( y - 2, x) quando é a primeira rodada
-    if estado.rodada_inicial:
-      yy = y - 1
-      valida_yx = valida_movimento_ratos( rato, yy, x, 
-                                      estado.celulas, estado.rodada_inicial )
-      if valida_yx:
-        acoes.append( (idx, valida_yx[0], valida_yx[1] ) )
-        # SEMPRE VAI MOVER 2 CASA NA PRIMEIRA
-        # return acoes
-      
-      # else:
-      #   print(' y - 2')
-
-
-    # Caso 2: capturar -> ( y - 1, x - 1 )  ou ( y - 1, x + 1) 
-    yy, xx =  self.movimento_captura(idx)
-    if (yy, xx) != (-1, -1):
-      # captura válida
-      valida_yx = valida_movimento_ratos( rato, yy, xx, 
-                                      estado.celulas, estado.rodada_inicial )
-      if valida_yx:
-        acoes.append( (idx, valida_yx[0], valida_yx[1]) )
-      # else:
-      #   print('captura')
-
-    
-    #BUG esta comendo mesmo com obstaculo
-    # Caso 3: mover -> (y - 1, x) se nao existe obstáculo
-    valida_yx = valida_movimento_ratos( rato, y, x, 
-                                      estado.celulas, estado.rodada_inicial )
-    if valida_yx:
-      acoes.append( (idx, valida_yx[0], valida_yx[1]) )
-    # else:
-    #   print('normal')
-    
-
-
-    return acoes
-
-
-
   """---------------------------------------------------------------------------
   #########################        MINMAX       ################################
   
@@ -246,69 +146,6 @@ class Ia_Ratos():
   :return: ação com a melhor utilidade
   (com openente jogando para minimizar a utilidade)
   ---------------------------------------------------------------------------"""
-  
-  #-----------------------------------------------------
-  # Cria uma nova instância de estado a partir do atual
-  #-----------------------------------------------------
-  # MOVER ESTA FUNCAO PARA UTILS ?
-  def get_estado(self, _estado):
-    
-    gatopos = (y, x) = _estado.gato.pos    
-    ratospos = [ (ry, rx) for (ry, rx) in _estado.ratos.pos ]
-    # ratospos = copy.deepcopy(_estado.ratos.pos)
-
-    rodada_inicial = _estado.rodada_inicial
-    jogador = _estado.jogador # MINIMAX sempre é chamada na vez do rato
-        
-    # gerar novo gato
-    gato = Gato()
-    gato.set_pos(gatopos[0], gatopos[1]) 
-
-    # gerar novo ratos
-    ratos = Ratos()
-    ratos.n = len(ratospos)
-    ratos.pos = ratospos
-
-    
-    # gerar novo tabuleiro 
-    celulas = { (y,x) : None  
-      for x in _estado.Cols  
-      for y in range(1, 9) }
-    
-    estado = Tabuleiro(celulas=celulas)
-    estado.inicializar(gato=gato, ratos=ratos,
-                      rodada_inicial=rodada_inicial, jogador=jogador )
-
-    return estado
-  
-  #-----------------------------------------------------
-  # obtém o estado(s) retornado a partir de uma acao(a)
-  #-----------------------------------------------------
-  def resultado(self, s, acao):
-    estado = self.get_estado(s)
-
-    # print(acao)
-    if estado.vitoria():
-      return s
-
-
-    if estado.jogador == MAX:
-      idx, y, x = acao
-      estado.mover_rato(estado.ratos, idx, y, x)
-
-    elif estado.jogador == MIN:
-      y, x = acao
-      estado.mover_gato(estado.gato, y, x)
-
-      # print_celulas(estado.celulas)
-
-    return estado
-
-
-
-  #-----------------------------------------------------
-  # Minimax
-  #-----------------------------------------------------
   def minimax(self):
     # estado inicial
     e_inicial = self.get_estado(self.tabuleiro)
@@ -422,7 +259,7 @@ class Ia_Ratos():
         # return 7 - s.ratos.n
         return -1
       else:
-        return 0
+        return 0 
 
     else:
       return self.heuristica(s)
@@ -486,3 +323,145 @@ class Ia_Ratos():
     v = max(melhor_a)
 
     return v
+
+  #-----------------------------------------------------------------------------
+  # // fim MinMax
+  #-----------------------------------------------------------------------------
+
+  """---------------------------------------------------------------------------
+  ################ Métodos auxiliares utilizados por MinMax ####################
+  ---------------------------------------------------------------------------"""
+
+  #-----------------------------------------------------------------------------
+  # Cria uma nova instância de estado a partir do atual
+  # :returns: <class.Tabuleiro> 
+  #   Uma cópia independente do Estado de entrada
+  #----------------------------------------------------------------------------
+  def get_estado(self, _estado):
+    
+    gatopos = (y, x) = _estado.gato.pos    
+    ratospos = [ (ry, rx) for (ry, rx) in _estado.ratos.pos ]
+
+    rodada_inicial = _estado.rodada_inicial
+    jogador = _estado.jogador # MINIMAX sempre é chamada na vez do rato
+        
+    # gerar novo gato
+    gato = Gato()
+    gato.set_pos(gatopos[0], gatopos[1]) 
+
+    # gerar novo ratos
+    ratos = Ratos()
+    ratos.n = len(ratospos)
+    ratos.pos = ratospos
+    
+    # gerar novo tabuleiro 
+    celulas = { (y,x) : None  
+      for x in _estado.Cols  
+      for y in range(1, 9) }
+    
+    estado = Tabuleiro(celulas=celulas)
+    estado.inicializar(gato=gato, ratos=ratos,
+                      rodada_inicial=rodada_inicial, jogador=jogador )
+
+    return estado
+  
+  #-----------------------------------------------------------------------------
+  # Obtém o estado(s) retornado a partir de uma acao(a)
+  # :returns: <class.Tabuleiro> 
+  #   O Estado sucessor de ACAO(s,a)
+  #-----------------------------------------------------------------------------
+  def resultado(self, s, acao):
+    estado = self.get_estado(s)
+
+    if estado.vitoria():
+      return s
+
+    if estado.jogador == MAX:
+      idx, y, x = acao
+      estado.mover_rato(estado.ratos, idx, y, x)
+
+    elif estado.jogador == MIN:
+      y, x = acao
+      estado.mover_gato(estado.gato, y, x)
+
+    return estado
+
+  #-----------------------------------------------------------------------------
+  # Obtém o conjunto de ações possíveis para o gato
+  # :returns: lista:[ tuplas(y,x) ]
+  #-----------------------------------------------------------------------------
+  def acoes_gato(self, estado):
+    if estado.gato.pos == None:
+      return [ ]
+
+    y, x = estado.gato.pos
+    
+    acoes = [ ]
+
+    # Caso 1: movimento na linha
+    for yy in range(1, estado.altura ):
+      # ignora a posição atual
+      if yy == y:
+        continue        
+      
+      if valida_movimento_gato(estado.gato, yy, x, estado.celulas):
+        acoes.append( ( yy, x ) )
+    
+    # Caso 2: movimento na coluna
+    for xx in estado.Cols:
+      # ignora a posição atual
+      if xx == x:
+        continue
+      
+      if valida_movimento_gato(estado.gato, y, xx, estado.celulas):
+        acoes.append( ( y, xx ) )
+      
+    return acoes
+  
+  #-----------------------------------------------------------------------------
+  # Retorna ações possíveis para o rato
+  # :returns: lista:[ tuplas(idx, y, x) ]
+  #   Onde idx é o rato selecionado paraa a ação
+  #-----------------------------------------------------------------------------
+  def acoes_rato(self, estado, idx):
+    
+    rato = estado.ratos.pos[idx]
+    y, x = rato
+    y -= 1
+
+    acoes = [ ]
+
+    # Caso 1: mover -> ( y - 2, x) quando é a primeira rodada
+    if estado.rodada_inicial:
+      yy = y - 1
+      valida_yx = valida_movimento_ratos( rato, yy, x, 
+                                      estado.celulas, estado.rodada_inicial )
+      if valida_yx:
+        acoes.append( (idx, valida_yx[0], valida_yx[1] ) )
+        
+        # Caso queira mover sempre y - 2 na primeira rodada:
+        # return acoes
+
+
+    # Caso 2: capturar -> ( y - 1, x - 1 )  ou ( y - 1, x + 1) 
+    yy, xx =  self.movimento_captura(idx)
+
+    if (yy, xx) != (-1, -1):
+
+      # captura válida
+      valida_yx = valida_movimento_ratos( rato, yy, xx, 
+                                      estado.celulas, estado.rodada_inicial )
+    
+      if valida_yx:    
+        acoes.append( (idx, valida_yx[0], valida_yx[1]) )
+
+    # Caso 3: mover -> (y - 1, x) se nao existe obstáculo
+    valida_yx = valida_movimento_ratos( rato, y, x, 
+                                      estado.celulas, estado.rodada_inicial )
+
+    if valida_yx:
+      acoes.append( (idx, valida_yx[0], valida_yx[1]) )
+
+    return acoes
+
+
