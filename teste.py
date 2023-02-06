@@ -17,15 +17,19 @@ def turno_humano():
   
   while(True):
   
-    yx = input("\t posicão: ")
+    yx = input("  posicão: ")
 
     if len(yx) != 2:
       alerta_jogador("\t posicão inválida: a entrada deve conter 2 caracteres. ex: '4d' ")
       
     else:
       break
+  
+  if yx[1].isnumeric():    
+    return yx[1].upper(), yx[0].upper()
+  else:
+    return yx[0].upper(), yx[1].upper()
 
-  return yx[0].upper(), yx[1].upper()
 
 
 #@TODO a construção desse metodo poder mudar com o uso de MIN MAX
@@ -75,8 +79,7 @@ if __name__ == "__main__":
     # VEZ do Rato
     #-----------------------------------------
     if tabuleiro.jogador == MAX:
-      time.sleep(.5)
-      print(f"\n ====== RODADA: {rodada} ========")
+      print(f"\t ====== RODADA: {rodada} ========")
 
       #-----------------------------------------
       # Escolhe um rato idx e coordenadas (y,x) 
@@ -85,9 +88,9 @@ if __name__ == "__main__":
       
       # Caso em que n ratos == 1 e esta bloqueado
       if (idx, y, x) == ( -1, -1, -1):
-        print("Ratos: Sem movimentos possíveis, passa a vez...")
+        print("Ratos: Sem movimentos possíveis, Empate...")
         tabuleiro.jogador = MIN
-        continue
+        break
 
       #-----------------------------------------
       # Executa o movimento com y,x válidos 
@@ -114,7 +117,7 @@ if __name__ == "__main__":
     # VEZ HUMANO
     #-----------------------------------------
     if tabuleiro.jogador == MIN:            
-      print(f"\n ====== RODADA: {rodada} ========")
+      print(f"\t ====== RODADA: {rodada} ========")
 
       # obtém coordenadas
       y,x = turno_humano()

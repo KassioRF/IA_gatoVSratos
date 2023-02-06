@@ -14,8 +14,9 @@ from .tabuleiro import Tabuleiro
 
 import copy
 
-
-from random import randint
+from math import sqrt
+from functools import reduce
+from random import randint, choice
 
 import time 
 
@@ -48,7 +49,7 @@ class Ia_Ratos():
 
   # teste
   profundidade = 0
-  max_profundidade = 15000
+  max_profundidade = 50000
   # rato escolhido para o movimento
   escolhido = 0
 
@@ -203,6 +204,9 @@ class Ia_Ratos():
                                       estado.celulas, estado.rodada_inicial )
       if valida_yx:
         acoes.append( (idx, valida_yx[0], valida_yx[1] ) )
+        # SEMPRE VAI MOVER 2 CASA NA PRIMEIRA
+        # return acoes
+      
       # else:
       #   print(' y - 2')
 
@@ -300,21 +304,15 @@ class Ia_Ratos():
 
     return estado
 
+
+
   #-----------------------------------------------------
-  # Cria uma nova instância de estado a partir do atual
+  # Minimax
   #-----------------------------------------------------
-  
   def minimax(self):
     # estado inicial
     e_inicial = self.get_estado(self.tabuleiro)
     
-    # no_raiz = No(pai=None, estado=e_inicial, jogador=e_inicial.jogador, 
-    #         utilidade=float('inf'), nivel=0)
-    
-    # fronteira = PilhaFronteira()
-    # fronteira.add(no_raiz)
-
-
     # obtém ações disponíveis para cada o ratos do tabuleiro
     acoes = [] 
     for idx in range(e_inicial.ratos.n):      
@@ -330,115 +328,105 @@ class Ia_Ratos():
 
     #teste
     # e_inicial.rodada_inicial = False
-    melhor_utld = [ i for i in range(len(acoes))]
+    melhor_utld = [ float('-inf') for i in range(len(acoes))]
 
 
     self.profundidade = 0
     alpha, beta = float('-inf'), float('inf')
     for i in range(len(acoes)):
-      # print(acao)
-      estado_suc = self.resultado(e_inicial, acoes[i])
       
+      estado_suc = self.resultado(e_inicial, acoes[i])
       estado_suc.rodada_inicial = False
+      
       
       melhor_utld[i] = self.valor_min(estado_suc, alpha, beta, 0)
 
+
+    idx = choice_bestMax(melhor_utld)
     
-    
-    idx = randint(0, len(acoes) - 1)
-    melhor = melhor_utld[idx]
-    
-    # se todas as jogadas pros ratos possuem a mesma utilidade 
-    # escolhe um aleatorio
-    
-    utlds_iguais = all(ut == melhor_utld[0] for ut in melhor_utld)    
-    if not utlds_iguais:   
-      melhor = max(melhor_utld)          
-      idx = melhor_utld.index(melhor)
-    
-    
-    # Em desenvolvimento.....
-    print(acoes, melhor, (time.time() - self.time))
+    print(f"prof: {self.profundidade}")
+    print(f"bs({acoes[idx]}, {round(melhor_utld[idx],4)}), t:{round((time.time() - self.time), 4)}")
     return acoes[idx]
 
   
   def heuristica(self, s):
     vantagem = 0
-
     desvantagem = 0
 
-    # vantagem
-    # ratos vizinhos em diagonal
-    # 
-    for idx in range(1, s.ratos.n):
-      iy, ix = s.ratos.pos[idx - 1]
-      jy, jx = s.ratos.pos[idx]
+    gy, _gx = s.gato.pos
+    gx = s.Cols.index(_gx)
 
-      if iy == jy - 1 or iy == jy + 1:
-        ixx = s.Cols.index(ix)
-        jxx = s.Cols.index(jx)
-        if ixx == jxx - 1 or ixx == jxx + 1:
-          # vantagem += 1 * .25
-          vantagem += 1 * (6 - iy)/10
-        elif ixx == jxx:
-          vantagem += .1 * (6 - iy)/10
-      
+    # ry, _rx = s.ratos.pos[idx]
+    # rx = s.Cols.index(_rx)
+    # yy, _xx = s.ratos.pos[ii]
+    # xx = s.Cols.index(_xx)
 
-    # desvantagem
-    # qtd ratos com x == gx ou y == gy
-    # se verdadeiro dizer que o rato está 1 jogada de pontuar
-    # caso contratio está a 2 jogadas de pontuar
+    # distancia do rato idx objetivo
+    dist_y1 = []
+    # distancia do rato idx do gato
+    dist_gato = []
 
-    gy, gx = s.gato.pos
-    
     for idx in range(s.ratos.n):
-      
-      ry, rx = s.ratos.pos[idx]
-      
+      ry, _rx = s.ratos.pos[idx]
+      rx = s.Cols.index(_rx)
+
+      # f(1) onde o gato está na linha ou coluna de um gato
       if gy == ry or gx == rx:
-        desvantagem += 1 * (s.ratos.n/10)
+        if (ry + 1) < 8 and (rx - 1) >= 0:
+          if s.celulas[ry + 1, s.Cols[rx - 1]] == s.ratos.icon:
+            vantagem += 6 
+          else:
+            desvantagem -= 1 * s.ratos.n/6
 
-      if gy > ry:
-        desvantagem += .2
+        if (ry + 1) < 8 and (rx + 1) < 8:
+            if s.celulas[ ry + 1, s.Cols[rx + 1]] == s.ratos.icon:
+              vantagem += 6
+            else:
+              desvantagem -= 1 * .5
 
-    # ratos em vantagem
-    vantagem = s.ratos.n - desvantagem
+      
+      # f(2) distancia dos ratos do objetivo
+      dist_y1.append(sqrt((rx-rx)**2) + ((ry-1)**2))
+      # f(3) distancia dos ratos do gato
+      dist_gato.append(sqrt((rx-gx)**2) + ((ry-gx)**2))
+      
 
-    evals = vantagem - desvantagem
+    # obtem a media da avaliacao das distancias
+    md_y1 = reduce(lambda a, b: a + b, dist_y1) * .2
+    md_gato = reduce(lambda a, b: a + b, dist_gato) *.1 # .2 deu bom
+    
+    # evals = md_gato*vantagem + md_y1*desvantagem
+    evals = md_y1*vantagem + md_gato*desvantagem
 
     return evals
 
 
-  def avaliacao(self, s):
+  def avaliacao(self, s):    
     
-    if s.vitoria(MAX) or s.vitoria(MIN):
+    if s.vitoria(MAX):
       if s.jogador == MAX:
-        return s.ratos.n
+        # return s.ratos.n + 1
+        return 1
       
-      elif s.jogador == MIN:        
-        return 6 - s.ratos.n
-    
+      # elif s.jogador == MIN:
+      #   # return 7 - s.ratos.n
+      #   return -1
+      else:
+        return 0
+
+    if s.vitoria(MIN):
+      # if s.jogador == MAX:        
+      #   # return s.ratos.n + 1      
+      #   return 1
+      if s.jogador == MIN:
+        # return 7 - s.ratos.n
+        return -1
+      else:
+        return 0
+
     else:
       return self.heuristica(s)
     
-    # if s.jogador == MAX:
-    #   if s.vitoria(MAX):
-    #     return s.ratos.n
-      
-    #   else:
-    #     return self.heuristica(s)
-
-    # elif s.jogador == MIN:
-    #   if s.vitoria(MIN):
-    #     return s.ratos.n * -1
-      
-    #   else:
-    #     return self.heuristica(s)
-    
-    # else:
-    #   return 0
-  
-
   # COM ALPHA BETA
   # se MAX acoes do rato
   def valor_min(self, s, alpha, beta, nivel):
@@ -462,28 +450,12 @@ class Ia_Ratos():
       
       beta = min(beta,v)
 
-
-    # print(nivel)
-    # if time.time() - self.time < 2:
-    #   # print_celulas(s.celulas)
-    #   print(s.vitoria(MAX), s.vitoria(MIN), )
-
-    # else:
-    #   print(s.rodada_inicial)
-    #   raise SystemExit
-    
-    # if nivel > 10:
-    #   print_celulas(s.celulas)
-    #   raise SystemExit
-    # print("MIN:")
-
-
     return v
 
   # se MIN acoes pro gato
   def valor_max(self, s, alpha, beta, nivel):
     self.profundidade += 1
-    print(self.profundidade)
+    
     s.jogador = MAX
 
     acoes = [ ]
@@ -502,11 +474,6 @@ class Ia_Ratos():
 
     for i in range(len(acoes)):
       s_suc = self.resultado(s, acoes[i])
-      
-      # print("\nMAX:")
-      # print(melhor_a, i)
-      # print_celulas(s_suc.celulas)
-      
       v = max(v, self.valor_min(s_suc, alpha, beta, nivel+1))
       # aplica poda alphabeta
       if v >= beta:
