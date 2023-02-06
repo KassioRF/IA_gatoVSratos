@@ -8,60 +8,75 @@ from pprint import pprint
 
 class Tabuleiro():
 
-  # controlador das condições da primeira rodada
-  rodada_inicial = True
-  
   # Vez do jogador
-  jogador = MAX
+  # jogador = MAX
 
   # Referência para as coluas
-  Cols = ["A", "B", "C", "D", "E", "F", "G", "H"]
+  Cols = COLUNAS
 
   # Define o tamanho da borda para a linha e coluna de referencia
   borda = 1
   
-  def __init__(self, altura=8, largura=8):  
+  def __init__(self, altura=8, largura=8, celulas=None):  
     
     self.altura = altura + self.borda
     self.largura = largura + self.borda
     
-    self.celulas = { (y,x) : None  
-      for x in self.Cols  
-      for y in range(1, altura + 1) }
+    # inicia um novo jogo
+    if celulas == None:
+      self.celulas = { (y,x) : None  
+        for x in self.Cols  
+        for y in range(1, altura + 1) }
 
-    self.gato = None
-    self.ratos = None
+      self.gato = None
+      self.ratos = None
+    
+    # inicia um tabuleiro com jogo em andamento
+    # é o caso para os tabuleiros utilizados minmax
+    else: 
+      self.celulas = celulas
 
+
+  # def set_celulas(self, celulas):
+  #   self.celulas = celulas
 
   # ---------------------------------------------------------
   # inicializa com gato e ratos no estado inicial do jogo
   #----------------------------------------------------------
-  def inicializar(self, gato, ratos):
+  def inicializar(self, gato, ratos, rodada_inicial=True, jogador=MAX):
     
     self.gato = gato
     self.ratos = ratos
+    self.rodada_inicial = rodada_inicial
     
-    # Inicializa com a coordenada do gato
+    # insere a coordenada do gato na respectiva célula
     self.celulas[self.gato.pos] = self.gato.icon
 
-    # Inicializa com as coordenadas dos ratos
+    # insere as coordenadas dos ratos nas células
     for idx in range(self.ratos.n):
       self.celulas[self.ratos.pos[idx]] = self.ratos.icon
 
+    # jogador da vez
+    self.jogador = jogador
+
   # ----------------------------------------------------------------------------
-  # Verifica se é estado de vitoria
+  # Verifica se é estado de vitória
   #-----------------------------------------------------------------------------
-  def vitoria(self, rato_idx=None):
-    if self.jogador == MAX:
-      if rato_idx != None:
-        # verifica se o rato chegou na linha 1
-        if self.ratos.pos[rato_idx][0] == 1:
+  def vitoria(self, jogador=None):
+    if jogador == None:
+      jogador = self.jogador
+
+    if jogador == MAX:
+      # verifica se o gato foi capturado
+      if self.gato.pos == None:
+        return True
+      # verifica se algum rato chegou na linha 1
+      for idx in range(self.ratos.n):
+        if self.ratos.pos[idx][0] == 1:
           return True
         
-        if self.gato.pos == None:
-          return True
     
-    if self.jogador == MIN:
+    if jogador == MIN:
       if self.ratos.n <= 0:
         return True
 
@@ -90,6 +105,7 @@ class Tabuleiro():
   #----------------------------------------------------------
   def mover_gato(self, gato, y, x):
     # Remove o rato(y,x) quando o movimento é de captura
+    # print(":::::::::: CAPTURA!!!!")
     if self.captura(y,x):
       self.ratos.remove(y, x)
     
@@ -117,8 +133,8 @@ class Tabuleiro():
     self.ratos.set_pos(idx, y, x)
     self.celulas[self.ratos.pos[idx]] = self.ratos.icon
 
-    if self.rodada_inicial == True:
-      self.rodada_inicial = False
+    # if RodadaInicial == True:
+    #   RodadaInicial = False
 
     return True
   

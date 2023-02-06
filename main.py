@@ -28,7 +28,7 @@ def turno_humano():
 
 
 #@TODO a construção desse metodo poder mudar com o uso de MIN MAX
-def turno_rato():
+def turno_rato(tabuleiro):
   idx, y, x = -1, -1, -1
   
   while(True):
@@ -38,7 +38,7 @@ def turno_rato():
       break
 
     # Se a coordenada do laço é valida finaliza o laço
-    if valida_movimento_ratos(ratos.pos[idx], y, x):
+    if valida_movimento_ratos(ratos.pos[idx], y, x, tabuleiro.celulas, tabuleiro.rodada_inicial):
       break
   
   return idx, y, x
@@ -66,20 +66,17 @@ if __name__ == "__main__":
   
   # Jogo começa com ratos
   tabuleiro.jogador = MAX
-  
   while(True):
-    
     #-----------------------------------------
     # VEZ do Rato
     #-----------------------------------------
     if tabuleiro.jogador == MAX:
       print(f"\n ====== RODADA: {rodada} ========")
-      rodada += 1
 
       #-----------------------------------------
       # Escolhe um rato idx e coordenadas (y,x) 
       #-----------------------------------------
-      idx, y, x = turno_rato()
+      idx, y, x = turno_rato(tabuleiro)
       
       # Caso em que n ratos == 1 e esta bloqueado
       if (idx, y, x) == ( -1, -1, -1):
@@ -95,26 +92,27 @@ if __name__ == "__main__":
         tabuleiro.exibir()
 
         # Verifica condicao de vitoria após o último movimento do rato[idx]
-        if tabuleiro.vitoria(idx):          
+        if tabuleiro.vitoria():          
           print(f"\n\t Você perdeu =\ \n")
           break
 
+      rodada += 1
       tabuleiro.jogador = MIN
       
-    
-    
+      if tabuleiro.rodada_inicial == True:
+        tabuleiro.rodada_inicial = False
+      
 
     #-----------------------------------------
     # VEZ HUMANO
     #-----------------------------------------
     if tabuleiro.jogador == MIN:            
       print(f"\n ====== RODADA: {rodada} ========")
-      rodada += 1
 
       # obtém coordenadas
       y,x = turno_humano()
       
-      valida_yx = valida_movimento_gato( gato, y, x)
+      valida_yx = valida_movimento_gato( gato, y, x, tabuleiro.celulas)
       # validação formata os valoes, como parse int para y etc..
       if valida_yx:
 
@@ -130,9 +128,14 @@ if __name__ == "__main__":
           print(f"\n\t Você venceu!\n")          
           break
         
+        rodada += 1
         tabuleiro.jogador = MAX
+      else:
+        continue
 
-      limpa_console()
+
+      # limpa_console()
+    print(tabuleiro.rodada_inicial)
 
 
 

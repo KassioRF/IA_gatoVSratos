@@ -37,8 +37,8 @@ class Ratos():
   
   def inicializar(self):
     # posições iniciais para os ratos
-    posicoes = [ (7, "A"), (7, "B"), (7, "C"),
-                 (7, "F"), (7, "G"), (7, "H") ]
+    posicoes = [ (3, "A"), (3, "B"), (3, "C"),
+                 (3, "F"), (3, "G"), (3, "H") ]
 
     for i in range(self.n):
       self.pos[i] = posicoes[i]
@@ -49,7 +49,7 @@ class Ratos():
 
   # Remover um rato na coordenada (y,x)
   # método invocado no caso de captura válida na vez do gato 
-  def remove( y, x):
+  def remove(self, y, x):
     idx = self.pos.index((y,x))
     self.pos.pop(idx)
     self.n -= 1
