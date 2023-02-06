@@ -42,7 +42,10 @@ def turno_rato(tabuleiro):
 -----------------------------------------------------------------------------"""
 from pprint import pprint
 import time
-if __name__ == "__main__":  
+
+
+
+if __name__ == "__main__":
   print("refatorando")
   #----------------------------------------------
   # Inicializa instâncias

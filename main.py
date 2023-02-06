@@ -1,6 +1,6 @@
 
 # Instâncias
-from src import gato, ratos, bot, tabuleiro
+from src import Gato, Ratos, Tabuleiro, Ia_Ratos
 # Métodos
 from src import valida_movimento_gato, valida_movimento_ratos
 from src import limpa_console, alerta_jogador
@@ -53,11 +53,17 @@ if __name__ == "__main__":
   #----------------------------------------------
   # Inicializa instâncias
   #----------------------------------------------
+  gato = Gato()
   gato.inicializar()
+  
+  ratos = Ratos()
   ratos.inicializar()
-
+  
+  tabuleiro = Tabuleiro()
   tabuleiro.inicializar( gato, ratos )
-
+  
+  bot = Ia_Ratos(ratos, gato, tabuleiro)
+  
   #----------------------------------------------
   # Começa o jogo
   #----------------------------------------------

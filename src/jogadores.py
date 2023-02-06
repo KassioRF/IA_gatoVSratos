@@ -30,6 +30,7 @@ class Ratos():
   
   icon = "#"
   n = 6
+  # n = 2
   pos = []
 
   def __init__(self):
@@ -37,8 +38,10 @@ class Ratos():
   
   def inicializar(self):
     # posições iniciais para os ratos
-    posicoes = [ (3, "A"), (3, "B"), (3, "C"),
-                 (3, "F"), (3, "G"), (3, "H") ]
+    posicoes = [ (7, "A"), (7, "B"), (7, "C"),
+                 (7, "F"), (7, "G"), (7, "H") ]
+
+    # posicoes = [ (4, "A"), (4, "H"), ]
 
     for i in range(self.n):
       self.pos[i] = posicoes[i]
