@@ -210,18 +210,42 @@ class Ia_Ratos():
     """    
       @TODO Definir caracteristicas to estado
       
+      (1): soma a distancia de cada rato ate o fim
+      (2): soa a distancia do gato capturar um rao
+
     """
+    dist_y1 = 0
+    dist_gato = 0
+
+    gy, _gx = s.gato.pos
+    gx = s.Cols.index(_gx)
+
+    for idx in range(s.ratos.n):
+    
+      ry, _rx = s.ratos.pos[idx]
+      rx = s.Cols.index(_rx)
+      
+      dist_y1 += sqrt((rx-rx)**2) + ((ry-1)**2)
+
+      if gy == ry or gx == rx:
+        # gato tem chance de capturar na proxima
+        dist_gato += 1
+      else:
+        dist_gato += 2
+
     if s.jogador == MAX:
-      Evals = s.ratos.n
+      Evals = (s.ratos.n) * (1/dist_y1 - 1/dist_gato)
     
     elif s.jogador == MIN:
-      Evals = 6 - s.ratos.n
+      Evals = (6 - s.ratos.n) * (1/dist_y1 - 1/dist_gato)
 
     else:
       Evals = 0
 
     return Evals
-
+  
+  
+  ### Evals = (s.ratos.n) * 1/dist_y1
   #=============================================================================
   #=============================================================================
 
