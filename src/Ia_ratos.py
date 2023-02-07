@@ -229,7 +229,9 @@ class Ia_Ratos():
 
       if gy == ry or gx == rx:
         # gato tem chance de capturar na proxima
+        # definir um valor melhor p essa chance
         dist_gato += 1
+      
       else:
         dist_gato += 2
 
