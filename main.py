@@ -29,10 +29,8 @@ def turno_humano():
       break
   
   if yx[1].isnumeric():    
-    # return yx[1].upper(), yx[0].upper()
     y, x = yx[1].upper(), yx[0].upper()
   else:
-    # return yx[0].upper(), yx[1].upper()
     y, x = yx[0].upper(), yx[1].upper()
   
   # validação formata os valoes, como parse int para y etc..

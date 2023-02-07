@@ -26,7 +26,7 @@ class Ratos():
   
   icon = RATOICON
   n = 6
-  # n = 2
+  # n = 3
   # Lista de 6 tuplas contendo a posição de cada rato
   pos = [] 
 
@@ -39,7 +39,7 @@ class Ratos():
     posicoes = [ (7, "A"), (7, "B"), (7, "C"),
                  (7, "F"), (7, "G"), (7, "H") ]
 
-    # posicoes = [ (4, "A"), (4, "H"), ]
+    # posicoes = [ (4, "A"), (4, "B"), (4, ""), (4, "H"), ]
 
     for i in range(self.n):
       self.pos[i] = posicoes[i]

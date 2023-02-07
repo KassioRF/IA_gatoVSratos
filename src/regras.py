@@ -1,9 +1,5 @@
-"""
-
-"""
-
 """--------------------------------------------------------------------------"""
- # Neste Modulo são aplicadas a validação dos movimentos
+ # Neste Módulo são aplicadas a validação dos movimentos
  # dos jogadores de acordo com as regras.
 """--------------------------------------------------------------------------"""
 
@@ -69,7 +65,7 @@ def valida_movimento_gato(gato, y, x, celulas, feedback=False):
   
 
   # Proibe caminho com um rato no trajeto
-  # Caso 1: É um movimento horizontal (x)
+  # Caso 1: É um movimento horizontal (y)
   elif gato.pos[0] == y:    
     # Verifica obstáculo no intervalo origem+1 destino-1
     origem, destino = (gato.pos[1], x) if gato.pos[1] < x else (x, gato.pos[1])
@@ -85,7 +81,7 @@ def valida_movimento_gato(gato, y, x, celulas, feedback=False):
         alerta_jogador("Obstáculo no caminho ", feedback)
         return False
 
-  # Caso 2: É um movimento vertical (y)
+  # Caso 2: É um movimento vertical (x)
   elif gato.pos[1] == x:
   
     # Verifica obstáculo no intervalo [origem+1, destino+1]

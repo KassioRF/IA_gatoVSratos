@@ -8,7 +8,7 @@ import time
 # import sys
 # print(sys.getrecursionlimit())
 # sys.setrecursionlimit(12000)
-from .constants import MIN, MAX, COLUNAS, LINHAS
+from .constants import MIN, MAX, COLUNAS, LINHAS, GATOICON, RATOICON
 from .regras import *
 from .util import print_celulas
 
@@ -28,8 +28,8 @@ class Ia_Ratos():
   # teste
   profundidade = 0
   
-  # max_profundidade = 50000
-  max_profundidade = 5000
+  max_profundidade = float('inf')
+  # max_profundidade = 5000
   
   # rato escolhido para o movimento quando não usa MinMAX ( testes )
   escolhido = 0 
@@ -143,10 +143,20 @@ class Ia_Ratos():
   
   Efetua a recursão descendo até as folhas da árvore de jogo
   
+  :param: <Bitr> quando True ativa Busca Imperfeita Em Tempo Real
+
   :return: ação com a melhor utilidade
   (com openente jogando para minimizar a utilidade)
   ---------------------------------------------------------------------------"""
-  def minimax(self):
+  
+  def minimax(self, Bitr=True):
+    
+    # teste BITR
+
+    if Bitr:
+      self.max_profundidade = 80000
+
+
     # estado inicial
     e_inicial = self.get_estado(self.tabuleiro)
     
@@ -160,110 +170,76 @@ class Ia_Ratos():
     if not acoes:
       return -1, -1, -1
 
-    # no = fronteira.remove()
-    self.time = time.time()
-
-    #teste
-    # e_inicial.rodada_inicial = False
+    
     melhor_utld = [ float('-inf') for i in range(len(acoes))]
 
-
+    self.time = time.time()
     self.profundidade = 0
+
     alpha, beta = float('-inf'), float('inf')
+
+    # Chama MinMax para cada acao i
     for i in range(len(acoes)):
       
       estado_suc = self.resultado(e_inicial, acoes[i])
+
       estado_suc.rodada_inicial = False
       
-      
+      # armazena a utilidade para a acao i        
       melhor_utld[i] = self.valor_min(estado_suc, alpha, beta, 0)
 
-
+    # pega o índice da melhor ação
+    # - choice é utilizado para casos em que há mais de
+    #   uma ação com o maior valor da utilidade. Neste caso
+    #   seleciona um max aleatório
     idx = choice_bestMax(melhor_utld)
     
+    # testes
     print(f"prof: {self.profundidade}")
     print(f"bs({acoes[idx]}, {round(melhor_utld[idx],4)}), t:{round((time.time() - self.time), 4)}")
+    
     return acoes[idx]
 
   
+  
+  
+  #============================================================================= 
+  # HEURISTICA
+  #=============================================================================
   def heuristica(self, s):
-    vantagem = 0
-    desvantagem = 0
-
-    gy, _gx = s.gato.pos
-    gx = s.Cols.index(_gx)
-
-    # ry, _rx = s.ratos.pos[idx]
-    # rx = s.Cols.index(_rx)
-    # yy, _xx = s.ratos.pos[ii]
-    # xx = s.Cols.index(_xx)
-
-    # distancia do rato idx objetivo
-    dist_y1 = []
-    # distancia do rato idx do gato
-    dist_gato = []
-
-    for idx in range(s.ratos.n):
-      ry, _rx = s.ratos.pos[idx]
-      rx = s.Cols.index(_rx)
-
-      # f(1) onde o gato está na linha ou coluna de um gato
-      if gy == ry or gx == rx:
-        if (ry + 1) < 8 and (rx - 1) >= 0:
-          if s.celulas[ry + 1, s.Cols[rx - 1]] == s.ratos.icon:
-            vantagem += 6 
-          else:
-            desvantagem -= 1 * s.ratos.n/6
-
-        if (ry + 1) < 8 and (rx + 1) < 8:
-            if s.celulas[ ry + 1, s.Cols[rx + 1]] == s.ratos.icon:
-              vantagem += 6
-            else:
-              desvantagem -= 1 * .5
-
+    """    
+      @TODO Definir caracteristicas to estado
       
-      # f(2) distancia dos ratos do objetivo
-      dist_y1.append(sqrt((rx-rx)**2) + ((ry-1)**2))
-      # f(3) distancia dos ratos do gato
-      dist_gato.append(sqrt((rx-gx)**2) + ((ry-gx)**2))
-      
-
-    # obtem a media da avaliacao das distancias
-    md_y1 = reduce(lambda a, b: a + b, dist_y1) * .2
-    md_gato = reduce(lambda a, b: a + b, dist_gato) *.1 # .2 deu bom
+    """
+    if s.jogador == MAX:
+      Evals = s.ratos.n
     
-    # evals = md_gato*vantagem + md_y1*desvantagem
-    evals = md_y1*vantagem + md_gato*desvantagem
+    elif s.jogador == MIN:
+      Evals = 6 - s.ratos.n
 
-    return evals
+    else:
+      Evals = 0
+
+    return Evals
+
+  #=============================================================================
+  #=============================================================================
 
 
   def avaliacao(self, s):    
-    
-    if s.vitoria(MAX):
-      if s.jogador == MAX:
-        # return s.ratos.n + 1
-        return 1
-      
-      # elif s.jogador == MIN:
-      #   # return 7 - s.ratos.n
-      #   return -1
-      else:
-        return 0
+      if s.vitoria(MAX) or s.vitoria(MIN):
+        if s.jogador == MAX:
+          return s.ratos.n
 
-    if s.vitoria(MIN):
-      # if s.jogador == MAX:        
-      #   # return s.ratos.n + 1      
-      #   return 1
-      if s.jogador == MIN:
-        # return 7 - s.ratos.n
-        return -1
-      else:
-        return 0 
+        elif s.jogador == MIN:
+          return 6 - s.ratos.n
 
-    else:
-      return self.heuristica(s)
-    
+        else:
+          return 0
+            
+      else:
+        return self.heuristica(s)
+
   # COM ALPHA BETA
   # se MAX acoes do rato
   def valor_min(self, s, alpha, beta, nivel):
