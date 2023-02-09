@@ -36,6 +36,7 @@ def alerta_jogador(msg, feedback=False):
 #-------------------------------------------------------------------------------
 def print_celulas(celulas):
 
+  print("\n")
   for y in reversed(range(1, 9)):
     print(str( [ celulas[ y, x ] for x in ["A","B","C","D","E","F","G","H"] ]))
 

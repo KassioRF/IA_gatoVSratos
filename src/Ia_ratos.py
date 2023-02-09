@@ -5,9 +5,7 @@ from math import sqrt
 from functools import reduce
 from random import randint, choice
 import time 
-# import sys
-# print(sys.getrecursionlimit())
-# sys.setrecursionlimit(12000)
+
 from .constants import MIN, MAX, COLUNAS, LINHAS, GATOICON, RATOICON
 from .regras import *
 from .util import print_celulas
@@ -53,35 +51,51 @@ class Ia_Ratos():
   # idx: índice do rato contido na lista de posicoes para os ratos
   # :return: (y,x) :: posição de captura
   # ----------------------------------------------------------------------------
-  def movimento_captura(self, idx):
-  
-    ratoy = self.ratos.pos[idx][0]
-    gatoy = self.gato.pos[0]
+  def verifica_capturaR(self, acao, estado):
+    idx, y, _x = acao
+    x = COLUNAS.index(_x)
+    
+    gy, gx = estado.gato.pos[0], COLUNAS.index(estado.gato.pos[1])
+    
+    #se gato nao está 1 linha abaixo a captura já é invalida
+    if gy == y - 1:
+      # Caso 1: [y-1, x-1]
+      if gx  == x - 1:
+        return True
+    
+      # Caso 2: [ y-1, x+1 ]
+      elif gx == x + 1 :      
+        return True
+
+    # return False
+
+    return False
+
+  def movimento_captura(self, idx, estado):
+    
+    ratoy = estado.ratos.pos[idx][0]
+    gatoy = estado.gato.pos[0]
 
     # conversão da letra da coluna para o índice respectivo da letra
-    gatox = self.tabuleiro.Cols.index(self.gato.pos[1])
-    ratox = self.tabuleiro.Cols.index(self.ratos.pos[idx][1])
+    gatox = COLUNAS.index(estado.gato.pos[1])
+    ratox = COLUNAS.index(estado.ratos.pos[idx][1])
 
     # se gato nao está 1 linha abaixo a captura já é invalida
     if gatoy == ratoy  - 1:
   
       # Caso 1: [y-1, x-1]
-      if gatox  == ratox - 1:
-        
-        y, x = self.ratos.pos[idx]
+      if gatox  == ratox - 1:        
+        y, x = estado.ratos.pos[idx]
         y = y - 1
-
-        x = self.tabuleiro.Cols[ratox - 1] 
+        x = COLUNAS[ratox - 1] 
         
         return y, x
     
       # Caso 2: [ y-1, x+1 ]
       elif gatox == ratox + 1 :
-
-        y, x = self.ratos.pos[idx]        
-        y = y - 1
-        
-        x = self.tabuleiro.Cols[ratox + 1]
+        y, x = estado.ratos.pos[idx]        
+        y = y - 1        
+        x = COLUNAS[ratox + 1]
         
         return y, x
 
@@ -152,9 +166,10 @@ class Ia_Ratos():
   def minimax(self, Bitr=True):
     
     # teste BITR
-
+    # Bitr = False
     if Bitr:
-      self.max_profundidade = 80000
+      self.max_profundidade = 220000
+      # self.max_profundidade = 75000
 
 
     # estado inicial
@@ -163,7 +178,17 @@ class Ia_Ratos():
     # obtém ações disponíveis para cada o ratos do tabuleiro
     acoes = [] 
     for idx in range(e_inicial.ratos.n):      
-      acoes += self.acoes_rato(e_inicial, idx)
+      
+      # Quando captura é disponivel p o rato já retorna de uma vez!
+      y, x =  self.movimento_captura(idx, e_inicial)
+      
+      if (y, x) != (-1, -1):
+        print((y, x) != (-1, -1), (idx, y, x), e_inicial.gato.pos)
+        return (idx, y, x)
+
+      _acao = self.acoes_rato(e_inicial, idx)            
+      acoes += _acao
+    
     
     # quando nao existem acoes possiveis e ainda nao é condição de vitoria
     # quer dizer que existe 1 rato no tabuleiro e ele está bloqueado pelo gato
@@ -179,8 +204,11 @@ class Ia_Ratos():
     alpha, beta = float('-inf'), float('inf')
 
     # Chama MinMax para cada acao i
-    for i in range(len(acoes)):
-      
+    
+    # e_inicial.rodada_inicial = False
+
+    for i in range(len(acoes)):    
+
       estado_suc = self.resultado(e_inicial, acoes[i])
 
       estado_suc.rodada_inicial = False
@@ -207,61 +235,170 @@ class Ia_Ratos():
   # HEURISTICA
   #=============================================================================
   def heuristica(self, s):
-    """    
-      @TODO Definir caracteristicas to estado
-      
-      (1): soma a distancia de cada rato ate o fim
-      (2): soa a distancia do gato capturar um rao
+    
+    def protegido(ry, _rx, gy, _gx, ratos ):
+      # verifica se um rato está protegido ser capturado
+      # assumindo que o gato está na mesma linha ou coluna do rato
+      gx = COLUNAS.index(_gx)
+      rx = COLUNAS.index(_rx)
+
+      for yy, _xx in ratos:
+        xx = COLUNAS.index(_xx)
+
+        # Caso 1: gato na mesma coluna do rato
+        if gy == ry or gx == rx:
+          # Requisito 1: tem 1 rato na linha de cima?
+          if ry + 1 == yy:
+            # Requisito 2: esse rato está (x-1) ou (x+1) do rato alvo do gato?
+            if rx + 1 < LINHAS \
+              and (rx + 1 == xx or rx - 1 == xx):
+              # protegido!
+              return True
+
+        # Caso 3: o gato não alcança o rato diretamente nem por y nem por x.
+        else:
+          return True
+
+      # se nenhum cenário de proteção for alcançado rato está vunerável
+      return False
+
+    # RATOS acompanhados são mais valiosos:
+    def valor_dos_ratos(s):
+      ratos = s.ratos.pos
+      celulas = s.celulas
+      v = [ 0 for i in range(s.ratos.n)]
+        
+      # Um rato acompanhado quer dizer que:
+      # i) existe um rato a esquerda com y-1 ou y+1
+      # ii) existe um rato a direita com y-1 ou y+1
+
+      for idx in range(s.ratos.n):
+        y, _x = ratos[idx]
+        x = COLUNAS.index(_x)
+
+        if x - 1 > 0:
+          if celulas[ y + 1, COLUNAS[ x - 1 ] ] == RATOICON or \
+           celulas[ y - 1, COLUNAS[ x - 1 ] ] == RATOICON:
+
+            v[idx] += .1
+
+          # elif celulas[ y, COLUNAS[ x - 1 ] ] == RATOICON:
+          #   v[idx] += .005
+
+        elif x + 1 < LINHAS:
+          if celulas[ y + 1, COLUNAS[ x + 1 ] ] == RATOICON \
+            or celulas[ y - 1, COLUNAS[ x - 1 ] ] == RATOICON:
+              
+              v[idx] += .1
+
+          # elif celulas[ y, COLUNAS[ x + 1 ] ] == RATOICON:
+          #   v[idx] += .005              
+
+
+      return v
 
     """
-    dist_y1 = 0
-    dist_gato = 0
+      1: Características do estado
+        
+        i) se linha i contém pelo meos i-1 ratos: 100% vitoria
+            ( a partir da linha 5 ) assim priozira o movimento 2 casas
+            da primeira rodada
 
-    gy, _gx = s.gato.pos
-    gx = s.Cols.index(_gx)
+        ii) n de movimentos necessários para o gato capturar o rato mais
+            perto de y = 1
 
-    for idx in range(s.ratos.n):
+    """
     
-      ry, _rx = s.ratos.pos[idx]
-      rx = s.Cols.index(_rx)
-      
-      dist_y1 += sqrt((rx-rx)**2) + ((ry-1)**2)
+    # qtd de ratos na linha i
+    # adiciona um endereço para representar a linha 0 
+    rW = valor_dos_ratos(s)
 
-      if gy == ry or gx == rx:
-        # gato tem chance de capturar na proxima
-        # definir um valor melhor p essa chance
-        dist_gato += 1
-      
-      else:
-        dist_gato += 2
-
-    if s.jogador == MAX:
-      Evals = (s.ratos.n) * (1/dist_y1 - 1/dist_gato)
+    # print(rW)
     
-    elif s.jogador == MIN:
-      Evals = (6 - s.ratos.n) * (1/dist_y1 - 1/dist_gato)
+    # raise SystemExit
 
-    else:
-      Evals = 0
+    rfi = [0] + [ 0 for i in range(1, LINHAS + 1) ]
+    
+    # peso de cada linha i
+    # adiciona valor para compensar endereço da linha 0
+    w = [0] + [ 1/i for i in range( 1, LINHAS + 1 ) ]
 
-    return Evals
+    gy, gx = s.gato.pos
+    
+    for y, x in s.ratos.pos:
+      
+      # primeiro verifica se o gato pode capturar o rato com 1 jogada
+      if valida_movimento_gato( s.gato, y, x, s.celulas, feedback=False ):
+      
+        # verifica se o rato está protegido por outro rato        
+        if protegido( y, x, gy, gx, s.ratos.pos ):
+          rfi[y] += 1.5 # vantagem pro rato
+        
+        else:
+          # as condições anteriores até aqui garantem um cenário onde 
+          # pode ter uma captura de rato com o gato em y ou em x
+          # ou ambos, com 2 ratos no "campo de vista" do gato
+          # A questão é: Neste caso qual rato será capturado ?!
+
+          #
+          # como identificar que o melhor pro gato é capturar o mais proximo de y = 1?
+          # o gato sempre vai priorizar o rato que oferece maior risco, ou seja,
+          # o rato com y mais proximo de 1 é um alvo crítico!
+          # Como o objetivo do gato é minimizar a vitoria dos ratos
+          # este cenário específico deve reduzir a chance de vitória do gato
+
+          rfi[y] -= (abs( y - 1 )/6) * .2
+
+          # => (y) | quanto menor o (y) do rato i menor o a utilidade deste estado
+
+
+        # se rato desprotegido descarta o movimento
+        # else:
+        #   rfi[y] -= 1
+      # else:
+      #   rfi[y] += 1
+      
+
+      # Verifica o cenário onde o gato pode caturar o rato !
+      # rato captura gato quando gato em -> ( y - 1, x - 1 )  ou ( y - 1, x + 1) 
+      # este é o mais valioso para um rato pois ganha o jogo
+      # yy, xx =  self.movimento_captura(s.ratos.pos.index((y,x)), s)      
+      # if (yy, xx) != (-1, -1):
+      #   rfi[y] += 2
+      rfi[y] += rW[s.ratos.pos.index((y,x))]
+
+
+
+    # retorna o valor ponderado da melhor linha
+    idmx = choice_bestMax(rfi)    
+    Eval = rfi[idmx] * w[ idmx ]
+
+    # retorna a média ponderada das linhas
+
+
+    return Eval
+
+
+    
+
+
   
   
   ### Evals = (s.ratos.n) * 1/dist_y1
   #=============================================================================
   #=============================================================================
 
-
   def avaliacao(self, s):    
-      if s.vitoria(MAX) or s.vitoria(MIN):
-        if s.jogador == MAX:
-          return s.ratos.n
+      if s.vitoria(MAX):
+        # print("VITORIA")
+        return  MAX
 
-        elif s.jogador == MIN:
-          return 6 - s.ratos.n
+      elif s.vitoria(MIN):
+        # print("DERROTA")
+        return  MIN
 
-        else:
-          return 0
+      # else:
+      #   return 0
             
       else:
         return self.heuristica(s)
@@ -273,7 +410,9 @@ class Ia_Ratos():
     s.jogador = MIN
     
 
-    if s.vitoria(MIN) or s.vitoria(MAX) or self.profundidade > self.max_profundidade:
+    if s.vitoria(MIN) or s.vitoria(MAX) \
+     or self.profundidade > self.max_profundidade:
+      
       return self.avaliacao(s)
 
     acoes = self.acoes_gato(s)
@@ -302,9 +441,11 @@ class Ia_Ratos():
       acoes += self.acoes_rato(s, idx)
 
 
-    if s.vitoria(MIN) or s.vitoria(MAX) or \
-     self.profundidade > self.max_profundidade or len(acoes) < 1:
-      return self.avaliacao(s)
+    if s.vitoria(MIN) or s.vitoria(MAX) \
+     or self.profundidade > self.max_profundidade \
+       or len(acoes) < 1:
+      
+        return self.avaliacao(s)
 
     melhor_a = [ float('-inf') for i in range(len(acoes))]    
     
@@ -313,6 +454,7 @@ class Ia_Ratos():
 
     for i in range(len(acoes)):
       s_suc = self.resultado(s, acoes[i])
+
       v = max(v, self.valor_min(s_suc, alpha, beta, nivel+1))
       # aplica poda alphabeta
       if v >= beta:
@@ -401,7 +543,7 @@ class Ia_Ratos():
     acoes = [ ]
 
     # Caso 1: movimento na linha
-    for yy in range(1, estado.altura ):
+    for yy in range(1, estado.altura ):      
       # ignora a posição atual
       if yy == y:
         continue        
@@ -442,11 +584,11 @@ class Ia_Ratos():
         acoes.append( (idx, valida_yx[0], valida_yx[1] ) )
         
         # Caso queira mover sempre y - 2 na primeira rodada:
-        # return acoes
+        return acoes
 
 
     # Caso 2: capturar -> ( y - 1, x - 1 )  ou ( y - 1, x + 1) 
-    yy, xx =  self.movimento_captura(idx)
+    yy, xx =  self.movimento_captura(idx, estado)
 
     if (yy, xx) != (-1, -1):
 
@@ -456,6 +598,9 @@ class Ia_Ratos():
     
       if valida_yx:    
         acoes.append( (idx, valida_yx[0], valida_yx[1]) )
+        # Retorna apenas o mov de captura
+        acoes = [ (idx, valida_yx[0], valida_yx[1]) ]
+        return acoes
 
     # Caso 3: mover -> (y - 1, x) se nao existe obstáculo
     valida_yx = valida_movimento_ratos( rato, y, x, 

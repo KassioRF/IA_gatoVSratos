@@ -55,7 +55,7 @@ def turno_rato(tabuleiro):
 -----------------------------------------------------------------------------"""
 #@TODO Ajustar limpa console para 2 turnos ( 1 rodada )
 if __name__ == "__main__":
-  print("refatorando")
+  limpa_console()
   #----------------------------------------------
   # Inicializa instâncias
   #----------------------------------------------
@@ -83,18 +83,19 @@ if __name__ == "__main__":
     # VEZ do Rato
     #-----------------------------------------
     if tabuleiro.jogador == MAX:
-
+      
+      print(" Vez do rato ... aguarde (10s)")
       idx, y, x = turno_rato(tabuleiro)
       
       # Caso em que n ratos == 1 e esta bloqueado
       if (idx, y, x) == ( -1, -1, -1):
-        print("Ratos: Sem movimentos possíveis, Empate...")
+        print("Ratos: Sem movimentos possíveis, passa vez...")
         tabuleiro.jogador = MIN        
-        # considera empate
-        break 
-        # considerar passar a vez para o gato. Consequentemente é vitória do gato
-        # no proximo.
-        # continue
+        # considerar passar a vez para o gato. 
+        continue
+        
+        # considera empate:
+        # break 
 
       tabuleiro.mover_rato(ratos, idx, y, x)
       tabuleiro.exibir()
@@ -115,7 +116,7 @@ if __name__ == "__main__":
     # VEZ HUMANO
     #-----------------------------------------
     if tabuleiro.jogador == MIN:            
-      
+      print(" Sua vez:")
       y,x = turno_humano()            
       
       tabuleiro.mover_gato(gato, y, x)
