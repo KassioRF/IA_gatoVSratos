@@ -43,10 +43,13 @@ def turno_humano():
 
 
 #@TODO a construção desse metodo poder mudar com o uso de MIN MAX
+from minimax import minimax
+
 def turno_rato(tabuleiro):  
   # idx, y, x = bot.escolhe_rato()
-  idx, y, x = bot.minimax()
-  
+  # idx, y, x = bot.minimax()
+  idx, y, x = minimax(bot)
+
   return idx, y, x
 
 
@@ -99,6 +102,8 @@ if __name__ == "__main__":
 
       tabuleiro.mover_rato(ratos, idx, y, x)
       tabuleiro.exibir()
+
+      tabuleiro.rodada_inicial = False
 
       # Verifica condicao de vitoria após o último movimento do rato[idx]
       if tabuleiro.vitoria():          

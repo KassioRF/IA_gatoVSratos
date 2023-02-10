@@ -145,3 +145,27 @@ def valida_movimento_ratos(rato_pos, y, x, celulas, rodada_inicial=False):
   
   # Movimento válido!
   return y, x
+
+#------------------------------------------------------------------------------
+# verifica se existe um gato passível de captura para uma acao "a" do rato
+# :param: <acao> = (idx, y, x), idx é o indice do rato
+#------------------------------------------------------------------------------
+def verifica_capturaR(acao, estado):
+  idx, y, _x = acao
+  x = COLUNAS.index(_x)
+  
+  gy, gx = estado.gato.pos[0], COLUNAS.index(estado.gato.pos[1])
+  
+  #se gato nao está 1 linha abaixo a captura já é invalida
+  if gy == y - 1:
+    # Caso 1: [y-1, x-1]
+    if gx  == x - 1:
+      return True
+  
+    # Caso 2: [ y-1, x+1 ]
+    elif gx == x + 1 :      
+      return True
+
+  # return False
+
+  return False
