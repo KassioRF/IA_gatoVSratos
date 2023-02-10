@@ -24,7 +24,7 @@ def minimax(bot, Bitr=True):
   if Bitr:
     bot.profundidade = 0 # contador de profundidade
     # bot.max_profundidade = 50000
-    bot.max_profundidade = 300000
+    bot.max_profundidade = 150000
 
 
   # estado inicial

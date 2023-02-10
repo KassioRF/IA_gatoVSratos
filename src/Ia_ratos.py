@@ -25,7 +25,7 @@ from .tabuleiro import Tabuleiro
       - <class.Gato>
 
   - Implementa os métodos para obter as ações "A" disponíveis no estado "s" atual
-  - Implementa o método para obter o resultado sucessor "s" dada uma ação "a"
+  - Implementa o método para obter o estado sucessor "s" dada uma ação "a"
 
 -----------------------------------------------------------------------------"""
 class Ia_Ratos():
@@ -34,9 +34,8 @@ class Ia_Ratos():
   profundidade = 0
   
   max_profundidade = float('inf')
-  # max_profundidade = 5000
   
-  # rato escolhido para o movimento quando não usa MinMAX ( testes )
+  # rato escolhido para o movimento quando não usa MinMax ( testes )
   escolhido = 0 
   
   # controla tempo de execução p algumas rotinas
@@ -86,7 +85,7 @@ class Ia_Ratos():
     return estado
   
   #-----------------------------------------------------------------------------
-  # Obtém o estado(s) retornado a partir de uma acao(a)
+  # Obtém o estado "s" gerado a partir de uma acao "a"
   # :returns: <class.Tabuleiro> 
   #   O Estado sucessor de ACAO(s,a)
   #-----------------------------------------------------------------------------
@@ -141,7 +140,7 @@ class Ia_Ratos():
   #-----------------------------------------------------------------------------
   # Retorna ações possíveis para os ratos existentes no tabuleiro  
   # :returns: lista:[ tuplas(idx, y, x) ]
-  #   Onde idx é o rato selecionado paraa a ação
+  #   Onde idx é o rato selecionado para a ação
   #-----------------------------------------------------------------------------
   def acoes_rato(self, estado):    
     # obtém as ações para 1 rato 
@@ -161,7 +160,7 @@ class Ia_Ratos():
           acoes_i.append( (idx, valida_yx[0], valida_yx[1] ) )
           
           # Caso queira mover sempre y - 2 na primeira rodada:
-          return acoes_i
+          # return acoes_i
 
 
       # Caso 2: capturar -> ( y - 1, x - 1 )  ou ( y - 1, x + 1) 
@@ -253,7 +252,7 @@ class Ia_Ratos():
     # se gato nao está 1 linha abaixo a captura já é invalida
     if gatoy == ratoy  - 1:
   
-      # Caso 1: [y-1, x-1]
+      # Caso 1: gato.pos( y-1, x-1 )
       if gatox  == ratox - 1:        
         y, x = estado.ratos.pos[idx]
         y = y - 1
@@ -261,7 +260,7 @@ class Ia_Ratos():
         
         return y, x
     
-      # Caso 2: [ y-1, x+1 ]
+      # Caso 2: gato.pos( y-1, x+1 )
       elif gatox == ratox + 1 :
         y, x = estado.ratos.pos[idx]        
         y = y - 1        

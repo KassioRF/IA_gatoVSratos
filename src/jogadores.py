@@ -25,8 +25,8 @@ class Gato():
 class Ratos():
   
   icon = RATOICON
-  # n = 3
   n = 6
+  # n = 3
   # Lista de 6 tuplas contendo a posição de cada rato
   pos = [] 
 

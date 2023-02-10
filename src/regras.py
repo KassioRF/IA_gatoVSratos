@@ -1,7 +1,7 @@
-"""--------------------------------------------------------------------------"""
- # Neste Módulo são aplicadas a validação dos movimentos
- # dos jogadores de acordo com as regras.
-"""--------------------------------------------------------------------------"""
+"""-----------------------------------------------------------------------------
+ Neste Módulo são aplicadas a validação dos movimentos
+ dos jogadores de acordo com as regras.
+-----------------------------------------------------------------------------"""
 
 from .util import *
 from .constants import COLUNAS, GATOICON
