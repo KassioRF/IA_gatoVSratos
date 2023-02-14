@@ -17,14 +17,14 @@ import time
   :return: ação com a melhor utilidade encontrada
 
 ---------------------------------------------------------------------------"""
-def minimax(bot, Bitr=True):
+def minimax(bot, Bitr=True, profundidade=15000):
   
   # teste BITR
   # Bitr = False
   if Bitr:
     bot.profundidade = 0 # contador de profundidade
     # bot.max_profundidade = 50000
-    bot.max_profundidade = 150000
+    bot.max_profundidade = profundidade
 
 
   # estado inicial

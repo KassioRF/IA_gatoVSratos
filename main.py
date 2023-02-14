@@ -1,19 +1,20 @@
 # -*- coding: utf-8 -*-
 
 # Instâncias
-# from src import gato, ratos, bot, tabuleiro
 from src import Gato, Ratos, Tabuleiro, Ia_Ratos
 # Métodos
 from src import valida_movimento_gato, valida_movimento_ratos
 from src import limpa_console, alerta_jogador
 # constantes
 from src import MAX, MIN
-# ferramentas
+# algoritmo minmax
+from minimax import minimax
+# ferramentas auxiliares
 from pprint import pprint
 import time
 
 """-----------------------------------------------------------------------------
-  Métodos para obter coordenadas
+  Métodos para obter entradas na vez do humano
 -----------------------------------------------------------------------------"""
 def turno_humano():
   yx = None
@@ -28,12 +29,15 @@ def turno_humano():
     else:
       break
   
+  # essa validação ajusta a entrada para sempre ser (y,x)
+  # Ex: mesmo o usuario entrando com "b4"
+  # este condicional verifica e se necessário corrige para "4b"
   if yx[1].isnumeric():    
     y, x = yx[1].upper(), yx[0].upper()
   else:
     y, x = yx[0].upper(), yx[1].upper()
   
-  # validação formata os valoes, como parse int para y etc..
+  # validação que garante um movimento válido para o gato
   valida_yx = valida_movimento_gato( gato, y, x, tabuleiro.celulas, True)
   if valida_yx:
     return valida_yx
@@ -42,19 +46,13 @@ def turno_humano():
    return turno_humano()
 
 
-#@TODO a construção desse metodo poder mudar com o uso de MIN MAX
-from minimax import minimax
-
 def turno_rato(tabuleiro):  
-  # idx, y, x = bot.escolhe_rato()
-  # idx, y, x = bot.minimax()
   idx, y, x = minimax(bot)
-
   return idx, y, x
 
 
 """-----------------------------------------------------------------------------
- # Executa o jogo
+ Executa o jogo
 -----------------------------------------------------------------------------"""
 #@TODO Ajustar limpa console para 2 turnos ( 1 rodada )
 if __name__ == "__main__":
@@ -80,7 +78,8 @@ if __name__ == "__main__":
   
   # Jogo começa com ratos
   tabuleiro.jogador = MAX
-  
+  tabuleiro.rodada_inicial = True
+
   while(True):
     #-----------------------------------------
     # VEZ do Rato
@@ -97,7 +96,7 @@ if __name__ == "__main__":
         # considerar passar a vez para o gato. 
         continue
         
-        # considera empate:
+        # considera empate e finaliza o jogo:
         # break 
 
       tabuleiro.mover_rato(ratos, idx, y, x)
@@ -105,7 +104,7 @@ if __name__ == "__main__":
 
       tabuleiro.rodada_inicial = False
 
-      # Verifica condicao de vitoria após o último movimento do rato[idx]
+      # Verifica condição de vitória após o último movimento do rato[idx]
       if tabuleiro.vitoria():          
         print(f"\n\t Você perdeu =\ \n")
         break
