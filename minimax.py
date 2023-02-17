@@ -45,13 +45,11 @@ def minimax(bot, Bitr=True, profundidade=5):
   alpha, beta = float('-inf'), float('inf')
 
   melhor_utld = [ float('-inf') for i in range(len(acoes))]
+  
   # MinMax p/ avaliar o movimento de cada um dos ratos no tabuleiro
-  for i in range(len(acoes)):    
+  for i in range(len(acoes)):        
     
     estado_suc = bot.resultado(e_inicial, acoes[i])    
-    # Inicia a recursão na árvore do jogo a partir do estado_inicial
-
-    # melhor_utld[i] = valor_min(bot, estado_suc, alpha, beta)
     melhor_utld[i] = valor_min(bot, estado_suc, alpha, beta, n=0)
 
 
@@ -81,7 +79,6 @@ def avaliacao(s):
     return heuristica(s)
 
 # COM ALPHA BETA
-# se MAX acoes do rato
 def valor_min(bot, s, alpha, beta, n):
   
   s.jogador = MIN
@@ -108,19 +105,16 @@ def valor_min(bot, s, alpha, beta, n):
 
   return v
 
-# se MIN acoes pro gato
 def valor_max(bot, s, alpha, beta, n):
   
   s.jogador = MAX
   s.rodada_inicial = False
 
-  # obtém acções disponíveis p/ os ratos no estado "s"
+  # obtém acções disponíveis p/ cada rato no estado "s"
   acoes = bot.acoes_rato(s)
   
   if s.vitoria(MIN) or s.vitoria(MAX) \
-    or len(acoes) < 1 or n > bot.max_profundidade:
-    # or bot.profundidade > bot.max_profundidade \
-    
+    or len(acoes) < 1 or n > bot.max_profundidade:      
       return avaliacao(s)
     
 
@@ -132,7 +126,7 @@ def valor_max(bot, s, alpha, beta, n):
     s_suc = bot.resultado(s, acoes[i])
 
     v = max(v, valor_min(bot, s_suc, alpha, beta, n+1))
-    # aplica poda alphabeta
+    # aplica poda alpha-beta
     if v >= beta:
       return v
     
