@@ -20,11 +20,8 @@ import time
 
 def minimax(bot, Bitr=True, profundidade=5):
   
-  # teste BITR
-  # Bitr = False
+  # Bitr = False  # para desativar o limite de profundidade da busca
   if Bitr:
-    bot.profundidade = 0 # contador de profundidade
-    # bot.max_profundidade = 50000
     bot.max_profundidade = profundidade
 
 
@@ -60,8 +57,8 @@ def minimax(bot, Bitr=True, profundidade=5):
   idx = choice_bestMax(melhor_utld)
 
   # testes
-  print(f"prof: {bot.profundidade}")
-  print(f"bs({acoes[idx]}, {round(melhor_utld[idx],4)}), t:{round((time.time() - bot.time), 4)}")
+  # print(f"prof: {bot.profundidade}")
+  print(f"Rato({acoes[idx][2]}) movimenta para:{acoes[idx][1:]} com chance de vitória: {round(melhor_utld[idx],4)} | t:{round((time.time() - bot.time), 4)}")
   
 
   return acoes[idx]

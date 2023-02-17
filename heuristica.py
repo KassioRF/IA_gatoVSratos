@@ -5,14 +5,13 @@ from src import print_celulas
 
 """-----------------------------------------------------------------------------
  HEURÍSTICA Para a busca imperfeita em tempo real do algorítimo MinMax
-  Availa a quantidade de rodadas necessárias para o gato ganhar.
-  Quanto o numero de rodadas necessárias para o gato ganhar
-  mais chances algum rato terá de chegar no final.
-  É importante levar em consideração estados do tabuleiro onde 
-  existem ratos protegidos de captura, ou seja com outro rato 
-  em [ (y + 1), ( x - 1 ou x + 1) ]
-  Nestes casos a distância de captura aumenta, mesmo o gato estando
-  na mesma linha ou coluna do rato.
+  
+  Esta função avalia a probabilidade de vitória para os jogadores a partir de um
+  estado s qualquer.
+
+  A abordagem utilizada considera a diferença entre a quantidade de rodadas
+  ( distância ) necessárias para o jogador MAX ou MIN vencer o jogo.
+
 -----------------------------------------------------------------------------"""
 def heuristica(s):
 
