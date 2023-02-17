@@ -46,7 +46,7 @@ def turno_humano():
    return turno_humano()
 
 
-def turno_rato(tabuleiro):  
+def turno_rato(bot, tabuleiro):  
   idx, y, x = minimax(bot)
   return idx, y, x
 
@@ -54,7 +54,6 @@ def turno_rato(tabuleiro):
 """-----------------------------------------------------------------------------
  Executa o jogo
 -----------------------------------------------------------------------------"""
-#@TODO Ajustar limpa console para 2 turnos ( 1 rodada )
 if __name__ == "__main__":
   limpa_console()
   #----------------------------------------------
@@ -81,13 +80,14 @@ if __name__ == "__main__":
   tabuleiro.rodada_inicial = True
 
   while(True):
+    #limpa_console()
     #-----------------------------------------
     # VEZ do Rato
-    #-----------------------------------------
+    #-----------------------------------------    
     if tabuleiro.jogador == MAX:
       
       print(" Vez do rato ... aguarde (10s)")
-      idx, y, x = turno_rato(tabuleiro)
+      idx, y, x = turno_rato(bot ,tabuleiro)
       
       # Caso em que n ratos == 1 e esta bloqueado
       if (idx, y, x) == ( -1, -1, -1):
@@ -133,6 +133,8 @@ if __name__ == "__main__":
       
       tabuleiro.rodadas += 1      
       tabuleiro.jogador = MAX
+
+    
 
 """-----------------------------------------------------------------------------
 # // fim.

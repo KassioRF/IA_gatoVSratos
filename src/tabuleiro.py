@@ -119,7 +119,7 @@ class Tabuleiro():
         
     
     if jogador == MIN:
-      if self.ratos.n <= 0:
+      if self.ratos.n == 0:
         return True
 
     return False

@@ -17,7 +17,8 @@ import time
   :return: ação com a melhor utilidade encontrada
 
 ---------------------------------------------------------------------------"""
-def minimax(bot, Bitr=True, profundidade=15000):
+
+def minimax(bot, Bitr=True, profundidade=5):
   
   # teste BITR
   # Bitr = False
@@ -32,6 +33,7 @@ def minimax(bot, Bitr=True, profundidade=15000):
   
   # obtém ações disponíveis para cada rato do tabuleiro
   acoes = bot.acoes_rato(e_inicial)
+ 
 
   # quando nao existem acoes possiveis e ainda nao é condição de vitoria
   # quer dizer que existe 1 rato no tabuleiro e ele está bloqueado pelo gato
@@ -43,14 +45,14 @@ def minimax(bot, Bitr=True, profundidade=15000):
   alpha, beta = float('-inf'), float('inf')
 
   melhor_utld = [ float('-inf') for i in range(len(acoes))]
-  
   # MinMax p/ avaliar o movimento de cada um dos ratos no tabuleiro
   for i in range(len(acoes)):    
     
     estado_suc = bot.resultado(e_inicial, acoes[i])    
     # Inicia a recursão na árvore do jogo a partir do estado_inicial
 
-    melhor_utld[i] = valor_min(bot, estado_suc, alpha, beta)
+    # melhor_utld[i] = valor_min(bot, estado_suc, alpha, beta)
+    melhor_utld[i] = valor_min(bot, estado_suc, alpha, beta, n=0)
 
 
   # pega o índice da melhor ação em ações
@@ -58,12 +60,14 @@ def minimax(bot, Bitr=True, profundidade=15000):
   #   uma ação com o maior valor da utilidade. 
   #   Neste caso seleciona um max aleatório.
   idx = choice_bestMax(melhor_utld)
-  
+
   # testes
   print(f"prof: {bot.profundidade}")
   print(f"bs({acoes[idx]}, {round(melhor_utld[idx],4)}), t:{round((time.time() - bot.time), 4)}")
   
+
   return acoes[idx]
+
 
 
 def avaliacao(s):    
@@ -78,15 +82,12 @@ def avaliacao(s):
 
 # COM ALPHA BETA
 # se MAX acoes do rato
-def valor_min(bot, s, alpha, beta):
+def valor_min(bot, s, alpha, beta, n):
   
-  bot.profundidade += 1
   s.jogador = MIN
-  # s.jogador = MAX
-  
 
-  if s.vitoria(MIN) or s.vitoria(MAX) \
-    or bot.profundidade > bot.max_profundidade:
+  if s.vitoria(MIN) or s.vitoria(MAX) or n > bot.max_profundidade:
+    # or bot.profundidade > bot.max_profundidade:
     
     return avaliacao(s)
 
@@ -97,8 +98,8 @@ def valor_min(bot, s, alpha, beta):
 
   for acao in acoes:
     s_suc = bot.resultado(s, acao)
-    v = min(v, valor_max(bot, s_suc, alpha, beta))
-    
+    v = min(v, valor_max(bot, s_suc, alpha, beta, n+1))
+        
     # aplica poda alphabeta
     if v <= alpha:
       return v
@@ -108,19 +109,17 @@ def valor_min(bot, s, alpha, beta):
   return v
 
 # se MIN acoes pro gato
-def valor_max(bot, s, alpha, beta):
+def valor_max(bot, s, alpha, beta, n):
   
-  bot.profundidade += 1  
   s.jogador = MAX
-  # s.jogador = MIN
   s.rodada_inicial = False
 
   # obtém acções disponíveis p/ os ratos no estado "s"
   acoes = bot.acoes_rato(s)
   
   if s.vitoria(MIN) or s.vitoria(MAX) \
-    or bot.profundidade > bot.max_profundidade \
-      or len(acoes) < 1:
+    or len(acoes) < 1 or n > bot.max_profundidade:
+    # or bot.profundidade > bot.max_profundidade \
     
       return avaliacao(s)
     
@@ -132,7 +131,7 @@ def valor_max(bot, s, alpha, beta):
   for i in range(len(acoes)):
     s_suc = bot.resultado(s, acoes[i])
 
-    v = max(v, valor_min(bot, s_suc, alpha, beta))
+    v = max(v, valor_min(bot, s_suc, alpha, beta, n+1))
     # aplica poda alphabeta
     if v >= beta:
       return v
