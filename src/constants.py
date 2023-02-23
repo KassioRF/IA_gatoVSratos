@@ -13,6 +13,3 @@ COLUNAS = ["A", "B", "C", "D", "E", "F", "G", "H"]
 # icones dos jogadores
 GATOICON = "&"
 RATOICON = "#"
-
-# profundidade
-# PROFUNDIDADE = 10
