@@ -13,11 +13,22 @@ from src import print_celulas
   ( distância ) necessárias para o jogador MAX ou MIN vencer o jogo.
 
 -----------------------------------------------------------------------------"""
+
 def heuristica(s):
 
-  # rodadas necessárias p/ o gato capturar o rato i
+
+
+ """--------------------------------------------------------------------------------------
+Lista que irá armazenar a quantidade de rodadas necessárias para o gato capturar cada rato.
+
+-----------------------------------------------------------------------------------------"""
   dist_g = [ 0 for i in range(s.ratos.n)]
-  # rodadas necessárias p/ o rato i chegar a lina 1 do tabuleiro
+
+"""--------------------------------------------------------------------------------------
+Lista que armazenará a quantidade de rodadas necessárias para cada rato chegar 
+à linha 1 do tabuleiro.
+
+-----------------------------------------------------------------------------------------"""
   dist_r = [ 0 for i in range(s.ratos.n)]
 
   for i in range(s.ratos.n):    
@@ -36,8 +47,12 @@ def heuristica(s):
     # obtém a distância do rato i até o a linha 1 do tabuleiro
     # considera a distância do gato até o rato i como um peso adicional
     dist_r[i] = abs(y-7)/7 + dist_g[i]
-
-
+   
+"""--------------------------------------------------------------------------------------
+Calcula a diferença entre a soma das distâncias dos ratos até a linha 1 do tabuleiro e 
+a soma das distâncias entre o gato e cada rato, representando 
+assim a probabilidade de vitória do jogador MAX.
+-----------------------------------------------------------------------------------------"""
   vG = sum(dist_r) - sum(dist_g)
 
 
