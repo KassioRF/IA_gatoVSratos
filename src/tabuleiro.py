@@ -1,15 +1,11 @@
 
 """--------------------------------------------------------------------------"""
  # Classe Tabuleiro:
- #
+ #Responsável por manter o estado atual do jogo em cada iteração, efetuar movimentos(assumindo que jpa sejam válidos),
+ # efetuar capturas, verificar se é um estado final do jogo e desenhar o tabuleiro no console.
  # Mantém o estado atual do jogo a cada iteração
  #
- # Resonsável por:
- # - efetuar movimentos; (assumindo que já sejam válidos)
- # - efetuar capturas;
- # - verificação do estado terminal
- # 
- # - também desenha o tabuleiro no console
+
 """--------------------------------------------------------------------------"""
 
 from .constants import *
@@ -21,8 +17,14 @@ class Tabuleiro():
   # Define o tamanho da borda para a linha e coluna de referencia
   borda = 1
 
-  # armazena o número de rodads ( só pra mostrar ao lado do placar)
+
+# armazena o número de rodads ( só pra mostrar ao lado do placar)
   rodadas = 0
+# - altura: número de linhas do tabuleiro (padrão LINHAS definido em constants.py)
+# - largura: número de colunas do tabuleiro (padrão COLUNAS definido em constants.py)
+# - celulas: opcional, dicionário de células inicializado (padrão None)
+
+# - __init__: inicializa o tabuleiro com altura, largura e células se fornecido
 
   def __init__(self, altura=LINHAS, largura=LINHAS, celulas=None):  
     
@@ -44,8 +46,8 @@ class Tabuleiro():
       self.celulas = celulas
 
   # ----------------------------------------------------------------------------
-  # Inicia o jogo
-  # posiciona jogadores, e atribui a rodada inicial para os ratos
+  # Inicia o jogo, posicionando jogadores e atribuindo a rodada inicial para os ratos
+  
   #-----------------------------------------------------------------------------
   def inicializar(self, gato, ratos, rodada_inicial=True, jogador=MAX):
     
