@@ -12,27 +12,24 @@ from src import print_celulas
   A abordagem utilizada considera a diferença entre a quantidade de rodadas
   ( distância ) necessárias para o jogador MAX ou MIN vencer o jogo.
 
+  :param s: estado do jogo ( class <src.Tabuleiro> )
+
+  :return: sum(distância ratos p/ vitória ) - sum(distância gato p/ vitória)
 -----------------------------------------------------------------------------"""
 
 def heuristica(s):
 
-  """--------------------------------------------------------------------------------------
-  Lista que irá armazenar a quantidade de rodadas necessárias para o gato capturar cada rato.
-  -----------------------------------------------------------------------------------------"""
+  # inicializa a quantidade de rodadas necessárias para o gato capturar cada rato.
   dist_g = [ 0 for i in range(s.ratos.n)]
 
-  """--------------------------------------------------------------------------------------
-  Lista que armazenará a quantidade de rodadas necessárias para cada rato chegar 
-  à linha 1 do tabuleiro.
-
-  -----------------------------------------------------------------------------------------"""
+  # inicializa a quantidade de rodadas necessárias para cada rato chegar.
   dist_r = [ 0 for i in range(s.ratos.n)]
 
   for i in range(s.ratos.n):    
     y, x = s.ratos.pos[i]
 
     # se o rato i está na mesma linha ou coluna do gato (sem obstáculos)
-    # a distância para a captura é de apenas 1 movimento
+    # a distância para a captura é de apenas 1 movimento.
     g_captura = valida_movimento_gato(s.gato, y, x, s.celulas)
     
     if g_captura:
@@ -50,10 +47,10 @@ def heuristica(s):
   a soma das distâncias entre o gato e cada rato, representando 
   assim a probabilidade de vitória do jogador MAX.
   -----------------------------------------------------------------------------------------"""
-  vG = sum(dist_r) - sum(dist_g)
+  Eval = sum(dist_r) - sum(dist_g)
 
 
-  return vG
+  return Eval
 
 #=============================================================================
 #=============================================================================

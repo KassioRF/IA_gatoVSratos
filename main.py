@@ -17,7 +17,7 @@ import time
   Métodos para obter entradas na vez do humano
 -----------------------------------------------------------------------------"""
 
-#O método "turno_humano" obtém a entrada do usuário (uma posição no tabuleiro) durante a vez do jogador humano e 
+# O método "turno_humano" obtém a entrada do usuário (uma posição no tabuleiro) durante a vez do jogador humano e 
 #valida se a entrada é válida. O método "turno_rato" é utilizado durante a vez dos ratos e usa o 
 #algoritmo minimax para determinar o melhor movimento para o jogador que controla os ratos.
 
