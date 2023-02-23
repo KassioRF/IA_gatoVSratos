@@ -1,5 +1,7 @@
 
 
+
+
 import copy
 from math import sqrt
 from functools import reduce
@@ -33,12 +35,14 @@ class Ia_Ratos():
   # teste
   profundidade = 0
   
+  #Profundidade máxima para a pesquisa Minimax. 
+  #Definido como infinito para que a profundidade não limite a pesquisa.
   max_profundidade = float('inf')
   
-  # rato escolhido para o movimento quando não usa MinMax ( testes )
+  # rato escolhido para o movimento quando não usa MinMax (testes)
   escolhido = 0 
   
-  # controla tempo de execução p algumas rotinas
+  # controla tempo de execução para algumas rotinas
   time = 0
 
   def __init__(self, ratos, gato, tabuleiro):
@@ -290,4 +294,5 @@ class Ia_Ratos():
 
     return idx, y, x
       
+
 
