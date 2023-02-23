@@ -16,6 +16,12 @@ import time
 """-----------------------------------------------------------------------------
   Métodos para obter entradas na vez do humano
 -----------------------------------------------------------------------------"""
+
+#O método "turno_humano" obtém a entrada do usuário (uma posição no tabuleiro) durante a vez do jogador humano e 
+#valida se a entrada é válida. O método "turno_rato" é utilizado durante a vez dos ratos e usa o 
+#algoritmo minimax para determinar o melhor movimento para o jogador que controla os ratos.
+
+
 def turno_humano():
   yx = None
   
@@ -37,7 +43,7 @@ def turno_humano():
   else:
     y, x = yx[0].upper(), yx[1].upper()
   
-  # validação que garante um movimento válido para o gato
+  # validação que garante um movimento válido para o gato.
   valida_yx = valida_movimento_gato( gato, y, x, tabuleiro.celulas, True)
   if valida_yx:
     return valida_yx
@@ -53,12 +59,19 @@ def turno_rato(bot, tabuleiro):
 
 """-----------------------------------------------------------------------------
  Executa o jogo
+
+
 -----------------------------------------------------------------------------"""
+
+
 if __name__ == "__main__":
   limpa_console()
-  #----------------------------------------------
-  # Inicializa instâncias
-  #----------------------------------------------
+  """----------------------------------------------
+  Inicializa instâncias
+  O método principal "if name == "main": inicia as instâncias do jogo (gato, ratos e tabuleiro) e 
+  começa o jogo em um loop while que alterna entre as vezes do jogador e dos ratos.O loop irá continuar 
+  até que um dos jogadores vença.
+  ----------------------------------------------"""
   
   gato = Gato()
   gato.inicializar()
