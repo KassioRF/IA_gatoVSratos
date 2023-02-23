@@ -1,6 +1,6 @@
 from src import MIN, MAX, LINHAS, COLUNAS, GATOICON, RATOICON 
 from src import choice_bestMax
-from src.regras import valida_movimento_gato, verifica_capturaR
+from src.regras import valida_movimento_gato
 from heuristica import heuristica
 import time
 

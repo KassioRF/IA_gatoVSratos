@@ -202,36 +202,6 @@ class Ia_Ratos():
   """---------------------------------------------------------------------------
   ### Métodos auxiliares ###
   ---------------------------------------------------------------------------"""
-  # ----------------------------------------------------------------------------
-  # Verifica se a posição atual permite a captura do gato
-  #
-  # a captura é valida se:
-  # gato está em:
-  # Caso 1: [y-1, x-1]; Caso 2: [ y-1, x+1 ]; para x,y :: [1,...,8]
-  #
-  # :param: <acao>  uma ação (idx, y, x)
-  #
-  # :return: (y,x) :: posição de captura
-  # ----------------------------------------------------------------------------
-  def verifica_capturaR(self, acao, estado):
-    idx, y, _x = acao
-    x = COLUNAS.index(_x)
-    
-    gy, gx = estado.gato.pos[0], COLUNAS.index(estado.gato.pos[1])
-    
-    #se gato nao está 1 linha abaixo a captura já é invalida
-    if gy == y - 1:
-      # Caso 1: [y-1, x-1]
-      if gx  == x - 1:
-        return True
-    
-      # Caso 2: [ y-1, x+1 ]
-      elif gx == x + 1 :      
-        return True
-
-    # return False
-
-    return False
 
   # ----------------------------------------------------------------------------
   # Retorna um movimento que captura o gato, quando possível para o rato idx.

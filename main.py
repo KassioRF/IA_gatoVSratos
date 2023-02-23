@@ -24,7 +24,7 @@ def turno_humano():
     yx = input("  posicão: ")
 
     if len(yx) != 2:
-      alerta_jogador("\t posicão inválida: a entrada deve conter 2 caracteres. ex: '4d' ", True)
+      alerta_jogador("\t posicão inválida: a entrada deve conter 2 caracteres. ex: '4d'")
       
     else:
       break

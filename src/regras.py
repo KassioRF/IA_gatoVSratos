@@ -1,14 +1,24 @@
+
 """-----------------------------------------------------------------------------
- Neste Módulo são aplicadas a validação dos movimentos
+ Módulo que implementa os métodos para a validação dos movimentos
  dos jogadores de acordo com as regras.
 -----------------------------------------------------------------------------"""
 
 from .util import *
 from .constants import COLUNAS, GATOICON
 
-#------------------------------------------------------------------------------
-# Valida o formato das coordenadas (int, str) ::: ([1,...8], [A,...H])
-#------------------------------------------------------------------------------
+"""-----------------------------------------------------------------------------
+ Valida o formato das coordenadas de entrada (y,x)
+
+  :param <y>: uma string que representa uma linha válida no 
+              intervalo [1, 8].
+  
+  :param <x>: uma string que representa uma coluna válida no conjunto 
+              ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'].
+
+  :return: retorna True se as coordenadas são válidas ou False caso contrário.
+
+-----------------------------------------------------------------------------"""
 def valida_coordenadas(y,x):
   
   # Garante que y é inteiro
@@ -40,48 +50,76 @@ def valida_coordenadas(y,x):
 
   return y,x
 
-#------------------------------------------------------------------------------
-# Verifica as regras antes de realizar o movimento do gato
-# feedback exibido apenas no jogo humano
-#------------------------------------------------------------------------------
+"""-----------------------------------------------------------------------------
+ Função que valida o movimento do gato no tabuleiro de acordo com as regras 
+ de movimento do jogo.
+
+  :param <gato>: class <src.jogadores.gato> instância do objeto que mantém as 
+                informações do gato no jogo.
+
+  :param <y>: inteiro que faz referência a uma linha p/ nova posição ([1,...8]).
+  
+  :param <x>: string que faz referência a uma coluna p/ nova posição ([A,..,H]).
+
+  :param <celulas>: dicionário que armazena a estrutura das células do tabuleiro.
+
+  :param <feedback>: quando True ativa as mensagens de feedback para o jogador
+                    ( caso as coordenadas inseridas forem inválidas ).
+  
+  :return: um par de valores (y, x) se o movimento é válido, ou 'False' 
+            caso contrário.
+  
+  :example: 
+    se a posição atual do gato é (1, 'D') e o jogador deseja mover o rato para 
+    a posição (7, 'D'), a função retorna um par de valores (7, 'D') se o 
+    movimento é válido, ou 'False' caso contrário.
+-----------------------------------------------------------------------------"""
 def valida_movimento_gato(gato, y, x, celulas, feedback=False):
 
+  # primeiro verifica se os valores y e x estão no formato de entrada correto.
   valida_yx = valida_coordenadas(y,x)
-
   if not valida_yx:
     return False
 
   y,x = valida_yx
 
-  # Assumindo que cada rodada deve haver um movimento
+  # Exige um movimento diferente da pos atual.
   if gato.pos == (y,x):
-    alerta_jogador("O movimento deve ser diferente da posição atual", feedback)
+    if feedback:
+      alerta_jogador("O movimento deve ser diferente da posição atual")
+    
     return False
 
   # Proíbe movimentos diagonais
   elif gato.pos[0] != y and gato.pos[1] != x:
-    alerta_jogador("Movimento diagonal nao permitido", feedback)
+    if feedback:
+      alerta_jogador("Movimento diagonal nao permitido")
+    
     return False
   
 
-  # Proibe caminho com um rato no trajeto
-  # Caso 1: É um movimento horizontal (y)
+  # Proibe o movimento onde exista um rato no trajeto.
+  
+  # Caso 1: É um movimento horizontal (x)
   elif gato.pos[0] == y:    
-    # Verifica obstáculo no intervalo origem+1 destino-1
-    origem, destino = (gato.pos[1], x) if gato.pos[1] < x else (x, gato.pos[1])
     
-    # As coordenadas x sao letras contidas no conjunto COLUNAS
-    # acessamos a coordenada no tabuleiro com a letra COLUNAS[indice]
-    # mas caminhamos pelas céluas (x+n, x-n) com os indices de COLUNAS
+    origem, destino = (gato.pos[1], x) if gato.pos[1] < x else (x, gato.pos[1])
+
+    ''' As coordenadas x sao letras contidas no conjunto COLUNAS
+    acessamos a coordenada no tabuleiro com a letra COLUNAS[indice]
+    mas caminhamos pelas céluas (x+n, x-n) com os indices de COLUNAS. '''
     origem, destino = COLUNAS.index(origem), COLUNAS.index(destino),
     
+    # Verifica obstáculo no intervalo [ origem + 1, destino - 1 ]
     for xx in range(origem + 1, destino):
       
       if celulas[y, COLUNAS[xx]] != None:
-        alerta_jogador("Obstáculo no caminho ", feedback)
+        if feedback:
+          alerta_jogador("Obstáculo no caminho ")
+        
         return False
 
-  # Caso 2: É um movimento vertical (x)
+  # Caso 2: É um movimento vertical (y)
   elif gato.pos[1] == x:
   
     # Verifica obstáculo no intervalo [origem+1, destino+1]
@@ -90,42 +128,54 @@ def valida_movimento_gato(gato, y, x, celulas, feedback=False):
     for yy in range(origem + 1, destino):
       
       if celulas[yy, x] != None:
-        alerta_jogador("Obstáculo no caminho ", feedback)
+        if feedback:
+          alerta_jogador("Obstáculo no caminho ")
+        
         return False
   
   # Movimento válido
   return y,x
 
-#------------------------------------------------------------------------------
-# Verifica as regras antes de realizar o movimento de um rato
-#------------------------------------------------------------------------------
+
+"""-----------------------------------------------------------------------------
+ Função que valida o movimento de um rato no tabuleiro de acordo com as regras 
+ de movimento do jogo.
+
+  :param <ratos_pos> : tupla (y,x) posição atual do rato.
+  
+  :param <y>: inteiro que faz referência a uma linha p/ nova posição ([1,...8]).
+  
+  :param <x>: string que faz referência a uma coluna p/ nova posição ([A,..,H]).
+  
+  :param <celulas>: dicionário que armazena a estrutura das células do tabuleiro.
+  
+  :param <rodada_inicial>: informa se é um movimento realizado na primeira 
+                           rodada do jogo (mantém o valor padrão como False).
+
+  :return: um par de valores (y, x) se o movimento é válido, ou 'False' 
+            caso contrário.
+
+  :example: 
+    se a posição atual do rato é (2, 'B') e o jogador deseja mover o rato para 
+    a posição (1, 'B'), a função retorna um par de valores (1, 'B') se o 
+    movimento é válido, ou 'False' caso contrário.
+-----------------------------------------------------------------------------"""
 def valida_movimento_ratos(rato_pos, y, x, celulas, rodada_inicial=False):
 
+  # primeiro verifica se os valores y e x estão no formato de entrada correto.
   if not valida_coordenadas(y,x):
     return False
 
-  # Exije um movimento diferente da pos atual
+  # Exige um movimento diferente da pos atual.
   if rato_pos[0] == y and rato_pos[1] == x :
-    alerta_jogador("O movimento deve ser diferente da posição atual")
     return False
 
   # Permite o movimento na diagonal se e somente se existir um gato em:
-  # (y, x - 1) ou (y, x + 1) 
+  # (y - 1, x - 1) ou (y - 1, x + 1).
   if rato_pos[0] != y and rato_pos[1] != x:
 
     if celulas[ y, x] != GATOICON:
-      alerta_jogador("Movimento inválido 1")
       return False
-
-  # Garante movimento para frente
-  if rato_pos[0] == y and rato_pos[1] != x :
-    alerta_jogador("Movimento lateral não é permitido para ratos")
-    return False
-  
-  #  invalida movimentos para trás
-  if rato_pos[0] < y:
-    alerta_jogador("Movimento inválido 2")
-    return False
 
   # Garante o movimento tamanho |1| :: ( y - 1) e
   # permite movimento tamanho 2 para a primeira rodada  
@@ -135,37 +185,12 @@ def valida_movimento_ratos(rato_pos, y, x, celulas, rodada_inicial=False):
       pass
   
     else:
-      alerta_jogador("Movimento inválido 3")
       return False
 
   # Garante que a celula da frente esteja livre
   if celulas[ y, x ] != None and rato_pos[1] == x:
-    alerta_jogador("Movimento inválido: Obstáculo")
     return False
   
-  # Movimento válido!
+  
   return y, x
 
-#------------------------------------------------------------------------------
-# verifica se existe um gato passível de captura para uma acao "a" do rato
-# :param: <acao> = (idx, y, x), idx é o indice do rato
-#------------------------------------------------------------------------------
-def verifica_capturaR(acao, estado):
-  idx, y, _x = acao
-  x = COLUNAS.index(_x)
-  
-  gy, gx = estado.gato.pos[0], COLUNAS.index(estado.gato.pos[1])
-  
-  #se gato nao está 1 linha abaixo a captura já é invalida
-  if gy == y - 1:
-    # Caso 1: [y-1, x-1]
-    if gx  == x - 1:
-      return True
-  
-    # Caso 2: [ y-1, x+1 ]
-    elif gx == x + 1 :      
-      return True
-
-  # return False
-
-  return False

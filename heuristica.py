@@ -1,5 +1,5 @@
 from src import LINHAS, COLUNAS, RATOICON, MIN, MAX
-from src import valida_movimento_gato, verifica_capturaR
+from src import valida_movimento_gato
 from src import print_celulas
 
 
@@ -37,7 +37,7 @@ def heuristica(s):
     # considera a distância do gato até o rato i como um peso adicional
     dist_r[i] = abs(y-7)/7 + dist_g[i]
 
-  # quantidade média de rodadas p/ o gato varrer os ratos do mapa.
+
   vG = sum(dist_r) - sum(dist_g)
 
 
