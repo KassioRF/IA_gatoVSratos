@@ -4,7 +4,7 @@
 
 Este projeto implementa uma versão do jogo de tabuleiro "Gato e Ratos". Onde o gato é controlado por um jogador humano e os ratos são controlados por um agente inteligente. 
 
-O Algoritmo de busca Minimax é aplicado ao contexto de agentes inteligentes tem como objetivo determinar a melhor jogada em um jogo de soma zero, considerando as possíveis ações do agente e do oponente, visando minimizar as perdas máximas.
+O Algoritmo de busca Minimax aplicado ao contexto de agentes inteligentes tem como objetivo determinar a melhor jogada em um jogo de soma zero, considerando as possíveis ações do agente e do oponente, visando minimizar as perdas máximas.
 
 ### Grupo:
 
