@@ -1,12 +1,27 @@
-# CSI701 - Inteligência Artificial
+# CSI701TP: Algoritmo MiniMax em agentes inteligentes
 
-## Trabalho Prático Gato VS Ratos
+## CSI701 - Inteligência Artificial :: 2022.1
+
+Este projeto implementa uma versão do jogo de tabuleiro "Gato e Ratos". Onde o gato é controlado por um jogador humano e os ratos são controlados por um agente inteligente. 
+
+O Algoritmo de busca Minimax é aplicado ao contexto de agentes inteligentes tem como objetivo determinar a melhor jogada em um jogo de soma zero, considerando as possíveis ações do agente e do oponente, visando minimizar as perdas máximas.
 
 ### Grupo:
 
  - Kassio Rodrigues Ferreira
  - Pedro Alexandre Souto
 
+#### Executando o jogo:
+
+O único requisito é ter o python 3.9^ instalado. 
+
+No diretório raiz basta executar o comando 
+
+```
+$ python main.py
+```
+
+---
 ### O Jogo de Gato e Ratos:
 
 #### Objetivo do gato
